@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "451296899827",
+    "project_id": "contact-handbook",
+    "storage_bucket": "contact-handbook.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451296899827:android:379bb949daa6a374c53d86",
+        "android_client_info": {
+          "package_name": "com.example.contacthandbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "451296899827-gi032l129ilma06dp1vkauil4u2fq98c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb7AIumbrK4-F4cAXiYToKnZ8bsm7MmLs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "451296899827-gi032l129ilma06dp1vkauil4u2fq98c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
