@@ -102,6 +102,7 @@ public class FirebaseManager {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 myRef.setValue(student);
+
                 callBack.onCallback(true);
             }
             @Override
@@ -109,6 +110,21 @@ public class FirebaseManager {
                 callBack.onCallback(false);
             }
         });
+
+        DatabaseReference addStudentAccountRef = database.getReference(USERS_CHILD).child(student.getId());
+
+        addStudentAccountRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User stu = new User(student.getId(), "1", student.getName(), "Student");
+                addStudentAccountRef.setValue(stu);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(false);
+            }
+        });
+
     }
 
 
