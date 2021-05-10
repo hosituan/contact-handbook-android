@@ -16,7 +16,6 @@ import com.example.contacthandbook.R;
 
 public class TeacherFragment extends Fragment {
 
-    private TeacherViewModel mViewModel;
 
     public static TeacherFragment newInstance() {
         return new TeacherFragment();
@@ -31,7 +30,6 @@ public class TeacherFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(TeacherViewModel.class);
         // TODO: Use the ViewModel
     }
 

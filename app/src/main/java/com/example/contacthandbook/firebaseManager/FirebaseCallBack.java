@@ -1,5 +1,6 @@
 package com.example.contacthandbook.firebaseManager;
 
+import com.example.contacthandbook.model.Notification;
 import com.example.contacthandbook.model.Student;
 import com.example.contacthandbook.model.User;
 
@@ -18,6 +19,19 @@ public interface FirebaseCallBack {
     interface AllStudentCallBack {
         void onCallback(List<Student> students);
     }
+
+    interface AddStudentCallBack {
+        void onCallback(boolean success);
+    }
+
+    interface AddMessageCallBack {
+        void onCallback(boolean success);
+    }
+
+    interface AllNotificationCallBack {
+        void onCallback(List<Notification> notifications);
+    }
+
 }
 
 

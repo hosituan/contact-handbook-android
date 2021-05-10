@@ -26,6 +26,7 @@ import java.util.ArrayList;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LOGIN";
     private static final String PREFS_NAME = "USER_INFO" ;
+
     Spinner spinner_role;
     FirebaseManager firebaseManager = new FirebaseManager(this);
     @Override
@@ -103,7 +104,6 @@ public class LoginActivity extends AppCompatActivity {
                     saveInfo(user, remember.isChecked());
                     Intent dashboardIntent = new Intent(LoginActivity.this, MainActivity.class);
                     LoginActivity.this.startActivity(dashboardIntent);
-
                 }
                 else {
                     CFAlertDialog.Builder builder = new CFAlertDialog.Builder(LoginActivity.this)

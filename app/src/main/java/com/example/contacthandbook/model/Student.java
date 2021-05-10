@@ -1,25 +1,28 @@
 package com.example.contacthandbook.model;
 
-public class Student {
+public class Student extends  Common {
 
     String id;
     String name;
+    String className;
     int grade;
 
     public Student() {
-        // Default constructor required for calls to DataSnapshot.getValue(User.class)
+
     }
 
-    public Student(String id, String name, int grade) {
+    public Student(String id, String name, String className) {
         this.id = id;
         this.name = name;
-        this.grade = grade;
+        this.className = className;
     }
 
     public String getId() {
         return id;
     }
 
+    public String getClassName() { return  this.className;}
+    public  void setClassName(String className) { this.className = className;}
     public String getName() {
         return name;
     }

@@ -1,7 +1,7 @@
 package com.example.contacthandbook.model;
 
 
-public class User {
+public class User extends Common {
     String username;
     String password;
     String name = "";

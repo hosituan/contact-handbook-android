@@ -2,8 +2,13 @@ package com.example.contacthandbook.firebaseManager;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.example.contacthandbook.MainActivity;
 import com.example.contacthandbook.fragment.home.HomeFragment;
+import com.example.contacthandbook.model.Notification;
 import com.example.contacthandbook.model.Student;
 import com.example.contacthandbook.model.User;
 import com.google.firebase.database.DataSnapshot;
@@ -14,6 +19,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FirebaseManager {
@@ -54,7 +60,6 @@ public class FirebaseManager {
         getUser(username, new FirebaseCallBack.UserCallBack() {
             @Override
             public void onCallback(User user) {
-
                 if (user != null && username.equals(user.getUsername()) && password.equals(user.getPassword()) && role.equals(user.getRole())) {
                     callBack.onCallBack(true, user);
                 }
@@ -79,6 +84,63 @@ public class FirebaseManager {
                     students.add(student);
                 }
                 callBack.onCallback(students);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+    }
+
+    public void addStudent(Student student, FirebaseCallBack.AddStudentCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(STUDENT_CHILD).child(student.getId());
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                myRef.setValue(student);
+                callBack.onCallback(true);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(false);
+            }
+        });
+    }
+
+
+    public void addMessage(Notification notification, FirebaseCallBack.AddMessageCallBack callBack ) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(NOTIFICATION_CHILD).child(new Date().toString());
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                myRef.setValue(notification);
+                callBack.onCallback(true);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(false);
+            }
+        });
+    }
+
+    public void loadNotification(FirebaseCallBack.AllNotificationCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Query studentQuery = database.getReference(NOTIFICATION_CHILD).limitToLast(1000);
+        studentQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                List<Notification> notifications = new ArrayList<>();
+                for (DataSnapshot notiSnapshot: snapshot.getChildren()) {
+                    Notification notification = notiSnapshot.getValue(Notification.class);
+                    notifications.add(notification);
+                }
+                callBack.onCallback(notifications);
             }
 
             @Override
