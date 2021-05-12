@@ -10,6 +10,7 @@ import com.example.contacthandbook.MainActivity;
 import com.example.contacthandbook.fragment.home.HomeFragment;
 import com.example.contacthandbook.model.Notification;
 import com.example.contacthandbook.model.Student;
+import com.example.contacthandbook.model.Teacher;
 import com.example.contacthandbook.model.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -127,6 +128,61 @@ public class FirebaseManager {
 
     }
 
+    public void getAllTeacher(FirebaseCallBack.AllTeacherCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Query teacherQuery = database.getReference(TEACHER_CHILD).limitToLast(1000);
+        teacherQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                List<Teacher> teachers = new ArrayList<>();
+                for (DataSnapshot teacherSnapshot: snapshot.getChildren()) {
+                    Teacher teacher = teacherSnapshot.getValue(Teacher.class);
+                    teachers.add(teacher);
+                }
+                callBack.onCallback(teachers);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+    }
+
+
+    public void addTeacher(Teacher teacher, FirebaseCallBack.AddTeacherCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(TEACHER_CHILD).child(teacher.getId());
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                myRef.setValue(teacher);
+
+                callBack.onCallback(true);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(false);
+            }
+        });
+
+        DatabaseReference addStudentAccountRef = database.getReference(USERS_CHILD).child(teacher.getId());
+
+        addStudentAccountRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User tea = new User(teacher.getId(), "1", teacher.getName(), "Student");
+                addStudentAccountRef.setValue(tea);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(false);
+            }
+        });
+
+    }
 
     public void addMessage(Notification notification, FirebaseCallBack.AddMessageCallBack callBack ) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
