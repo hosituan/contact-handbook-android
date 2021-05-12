@@ -234,7 +234,7 @@ public class MainActivity  extends AppCompatActivity  {
                         }
                         if (drawerItem == teacherList){
                             toolbar.setTitle("Teacher List");
-                            loadFragment(new TeacherFragment());
+                            loadFragment(new TeacherFragment(searchView));
                         }
 
                         if (drawerItem == notificationList){
