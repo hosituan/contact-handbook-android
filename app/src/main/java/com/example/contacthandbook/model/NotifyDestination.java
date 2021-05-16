@@ -6,7 +6,8 @@ import java.util.ArrayList;
 public enum NotifyDestination {
     ALL,
     TEACHER,
-    STUDENT;
+    STUDENT,
+    PARENT;
 
     public String toString(){
         switch(this) {
@@ -14,6 +15,8 @@ public enum NotifyDestination {
                 return "ALL";
             case TEACHER:
                 return "TEACHER";
+            case PARENT:
+                return "PARENT";
             default: return "STUDENT";
         }
     }

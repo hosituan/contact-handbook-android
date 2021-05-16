@@ -1,5 +1,6 @@
 package com.example.contacthandbook.fragment.notification;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -20,6 +21,7 @@ import com.example.contacthandbook.R;
 import com.example.contacthandbook.firebaseManager.FirebaseCallBack;
 import com.example.contacthandbook.firebaseManager.FirebaseManager;
 import com.example.contacthandbook.model.Notification;
+import com.example.contacthandbook.model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.example.contacthandbook.model.NotifyDestination;
@@ -27,10 +29,13 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 
 import java.util.List;
 
-public class NotificationFragment extends Fragment {
+import static android.content.Context.MODE_PRIVATE;
 
+public class NotificationFragment extends Fragment {
+    private static final String PREFS_NAME = "USER_INFO";
     FirebaseManager firebaseManager = new FirebaseManager(getContext());
     NotificationAdapter adapter;
+
     public NotificationFragment() {
 
     }
@@ -52,6 +57,10 @@ public class NotificationFragment extends Fragment {
         // TODO: Use the ViewModel
 
         FloatingActionButton fab = getView().findViewById(R.id.fab);
+        User user = getSavedInfo();
+        if (!user.getRole().equals("Admin")) {
+            fab.setVisibility(View.GONE);
+        }
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -104,6 +113,20 @@ public class NotificationFragment extends Fragment {
     }
 
     void loadList() {
+        NotifyDestination role = NotifyDestination.ALL;
+        User user = getSavedInfo();
+        if (user.getRole().equals("Admin")) {
+            role = NotifyDestination.ALL;
+        }
+        if (user.getRole().equals("Student")) {
+            role=NotifyDestination.STUDENT;
+        }
+        if (user.getRole().equals("Parent")) {
+            role=NotifyDestination.PARENT;
+        }
+        if (user.getRole().equals("Teacher")) {
+            role=NotifyDestination.TEACHER;
+        }
         //show progressHUD
         KProgressHUD hud = KProgressHUD.create(getContext())
                 .setDetailsLabel("Loading notification")
@@ -114,7 +137,7 @@ public class NotificationFragment extends Fragment {
 
         RecyclerView recyclerView = getView().findViewById(R.id.notificationList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        firebaseManager.loadNotification(new FirebaseCallBack.AllNotificationCallBack() {
+        firebaseManager.loadNotification(role, new FirebaseCallBack.AllNotificationCallBack() {
             @Override
             public void onCallback(List<Notification> notifications) {
                 adapter = new NotificationAdapter(getContext(), notifications);
@@ -133,6 +156,13 @@ public class NotificationFragment extends Fragment {
                 hud.dismiss();
             }
         });
+    }
+    public User getSavedInfo() {
+        User user = new User();
+        SharedPreferences sharedPref = getContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        user.setName(sharedPref.getString("name", "Contact Handbook"));
+        user.setRole(sharedPref.getString("role", "student"));
+        return  user;
     }
 
 

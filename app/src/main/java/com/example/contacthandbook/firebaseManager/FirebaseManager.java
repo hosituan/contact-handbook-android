@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.example.contacthandbook.MainActivity;
 import com.example.contacthandbook.fragment.home.HomeFragment;
 import com.example.contacthandbook.model.Notification;
+import com.example.contacthandbook.model.NotifyDestination;
 import com.example.contacthandbook.model.Student;
 import com.example.contacthandbook.model.Teacher;
 import com.example.contacthandbook.model.User;
@@ -31,7 +32,6 @@ public class FirebaseManager {
     private static final String TEACHER_CHILD = "teachers";
     private static final String NOTIFICATION_CHILD = "notifications";
     private static final String FEEDBACK_CHILD = "feedback";
-    private static final String CLASSES_CHILD = "classes";
 
     private Context context;
 
@@ -168,19 +168,21 @@ public class FirebaseManager {
             }
         });
 
-        DatabaseReference addStudentAccountRef = database.getReference(USERS_CHILD).child(teacher.getId());
+        DatabaseReference addTeacherAccountRef = database.getReference(USERS_CHILD).child(teacher.getId());
 
-        addStudentAccountRef.addValueEventListener(new ValueEventListener() {
+        addTeacherAccountRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User tea = new User(teacher.getId(), "1", teacher.getName(), "Student");
-                addStudentAccountRef.setValue(tea);
+                User tea = new User(teacher.getId(), "1", teacher.getName(), "Teacher");
+                addTeacherAccountRef.setValue(tea);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 callBack.onCallback(false);
             }
         });
+
+
 
     }
 
@@ -201,7 +203,7 @@ public class FirebaseManager {
         });
     }
 
-    public void loadNotification(FirebaseCallBack.AllNotificationCallBack callBack) {
+    public void loadNotification(NotifyDestination destination, FirebaseCallBack.AllNotificationCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query studentQuery = database.getReference(NOTIFICATION_CHILD).limitToLast(1000);
         studentQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -209,8 +211,13 @@ public class FirebaseManager {
             public void onDataChange(DataSnapshot snapshot) {
                 List<Notification> notifications = new ArrayList<>();
                 for (DataSnapshot notiSnapshot: snapshot.getChildren()) {
+
                     Notification notification = notiSnapshot.getValue(Notification.class);
-                    notifications.add(notification);
+                    if (notification.getDesitnation()== destination || destination == NotifyDestination.ALL )
+                    {
+                        notifications.add(notification);
+                    }
+
                 }
                 callBack.onCallback(notifications);
             }
