@@ -27,13 +27,16 @@ import com.example.contacthandbook.R;
 import com.example.contacthandbook.firebaseManager.FirebaseCallBack;
 import com.example.contacthandbook.firebaseManager.FirebaseManager;
 import com.example.contacthandbook.model.Common;
+import com.example.contacthandbook.model.Student;
 import com.example.contacthandbook.model.Teacher;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class TeacherFragment extends Fragment {
 
@@ -51,12 +54,13 @@ public class TeacherFragment extends Fragment {
         searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+
                 return false;
             }
             @Override
             public boolean onQueryTextChange(String newText) {
                 //Do some magic
-                Log.w("TAG", newText);
+                adapter.filter(newText.trim());
                 return false;
             }
         });
@@ -171,6 +175,7 @@ public class TeacherFragment extends Fragment {
                 });
                 recyclerView.setAdapter(adapter);
                 hud.dismiss();
+                adapter.notifyDataSetChanged();
             }
         });
     }
@@ -180,10 +185,32 @@ public class TeacherFragment extends Fragment {
             private LayoutInflater mInflater;
             private TeacherFragment.CommonRecyclerAdapter.OnItemListener onItemListener;
 
+            // create arraylist
+            private ArrayList<Teacher> arraymData;
+
             // data is passed into the constructor
             public CommonRecyclerAdapter(Context context, List<Teacher> data) {
                 this.mInflater = LayoutInflater.from(context);
                 this.mData = data;
+
+                this.arraymData = new ArrayList<Teacher>();
+                this.arraymData.addAll(mData);
+            }
+
+            // class filter
+            public void filter(String charText) {
+                charText = charText.toLowerCase(Locale.getDefault());
+                mData.clear();
+                if (charText.length() == 0) {
+                    mData.addAll(arraymData);
+                } else {
+                    for (Teacher teacher : arraymData) {
+                        if (teacher.getName().toLowerCase(Locale.getDefault()).contains(charText)) {
+                            mData.add(teacher);
+                        }
+                    }
+                }
+                notifyDataSetChanged();
             }
 
             // inflates the row layout from xml when needed
