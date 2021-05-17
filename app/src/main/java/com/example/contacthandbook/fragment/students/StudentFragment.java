@@ -31,7 +31,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.kaopiz.kprogresshud.KProgressHUD;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class StudentFragment extends Fragment {
 
@@ -48,12 +50,13 @@ public class StudentFragment extends Fragment {
         searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+
                 return false;
             }
             @Override
             public boolean onQueryTextChange(String newText) {
                 //Do some magic
-                Log.w("TAG", newText);
+                adapter.filter(newText.trim());
                 return false;
             }
         });
@@ -170,6 +173,7 @@ public class StudentFragment extends Fragment {
                 });
                 recyclerView.setAdapter(adapter);
                 hud.dismiss();
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -182,10 +186,32 @@ public class StudentFragment extends Fragment {
         private LayoutInflater mInflater;
         private OnItemListener onItemListener;
 
+        // create arraylist
+        private ArrayList<Student> arraymData;
+
         // data is passed into the constructor
         public CommonRecyclerAdapter(Context context, List<Student> data) {
             this.mInflater = LayoutInflater.from(context);
             this.mData = data;
+
+            this.arraymData = new ArrayList<Student>();
+            this.arraymData.addAll(mData);
+        }
+
+        // class filter
+        public void filter(String charText) {
+            charText = charText.toLowerCase(Locale.getDefault());
+            mData.clear();
+            if (charText.length() == 0) {
+                mData.addAll(arraymData);
+            } else {
+                for (Student student : arraymData) {
+                    if (student.getName().toLowerCase(Locale.getDefault()).contains(charText)) {
+                        mData.add(student);
+                    }
+                }
+            }
+            notifyDataSetChanged();
         }
 
         // inflates the row layout from xml when needed
