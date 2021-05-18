@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.crowdfire.cfalertdialog.CFAlertDialog;
+import com.example.contacthandbook.fragment.classes.ClassFragment;
 import com.example.contacthandbook.fragment.home.HomeFragment;
 import com.example.contacthandbook.fragment.notification.NotificationFragment;
 import com.example.contacthandbook.fragment.students.StudentFragment;
@@ -240,6 +241,11 @@ public class MainActivity  extends AppCompatActivity  {
                         if (drawerItem == notificationList){
                             toolbar.setTitle("Notifications");
                             loadFragment(new NotificationFragment());
+                        }
+
+                        if (drawerItem == classList) {
+                            toolbar.setTitle("Class");
+                            loadFragment(new ClassFragment());
                         }
 
 
