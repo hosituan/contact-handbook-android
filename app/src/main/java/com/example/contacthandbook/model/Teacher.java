@@ -18,15 +18,15 @@ public class Teacher extends  Common {
     public String getId() {
         return id;
     }
-    public String getClassName() { return  this.className;}
-    public  void setClassName(String className) { this.className = className;}
     public String getName() {
         return name;
     }
+    public String getClassName() { return  this.className;}
     public void setId(String id) {
         this.id = id;
     }
     public void setName(String name) {
         this.name = name;
     }
+    public  void setClassName(String className) { this.className = className;}
 }

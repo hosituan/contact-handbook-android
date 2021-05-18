@@ -126,6 +126,10 @@ public class FirebaseManager {
             }
         });
 
+        DatabaseReference addStudentClass = database.getReference(CLASS_CHILD).child(student.getClassName()).child(student.getId());
+        addStudentClass.setValue("student");
+
+
     }
 
     public void getAllTeacher(FirebaseCallBack.AllTeacherCallBack callBack) {
@@ -140,6 +144,7 @@ public class FirebaseManager {
                     teachers.add(teacher);
                 }
                 callBack.onCallback(teachers);
+
             }
 
             @Override
@@ -228,6 +233,33 @@ public class FirebaseManager {
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
+    }
+
+    public void loadClasses(FirebaseCallBack.AllClassName callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Query classQuery = database.getReference(CLASS_CHILD).limitToLast(1000);
+        classQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                List<String> classes = new ArrayList<>();
+                for (DataSnapshot classSnapshot: snapshot.getChildren()) {
+                    classes.add(classSnapshot.getKey());
+                }
+                callBack.onCallback(classes);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+    }
+
+    public  void addTeacherToClass(String className, Teacher teacher) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference addTeacherRef = database.getReference(CLASS_CHILD).child(className).child(teacher.getId());
+        addTeacherRef.setValue("Teacher");
     }
 
 }

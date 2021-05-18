@@ -40,6 +40,9 @@ public interface FirebaseCallBack {
     interface AllNotificationCallBack {
         void onCallback(List<Notification> notifications);
     }
+    interface  AllClassName {
+        void onCallback(List<String> classes);
+    }
 
 }
 
