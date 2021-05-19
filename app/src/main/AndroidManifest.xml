@@ -9,6 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ContactHandbook">
+        <activity android:name=".fragment.classes.ClassDetailActivity"></activity>
         <activity android:name=".RegisterActivity" />
         <activity
             android:name=".LoginActivity"

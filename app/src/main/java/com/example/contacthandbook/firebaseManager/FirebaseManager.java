@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.example.contacthandbook.MainActivity;
 import com.example.contacthandbook.fragment.home.HomeFragment;
+import com.example.contacthandbook.model.Classes;
 import com.example.contacthandbook.model.Notification;
 import com.example.contacthandbook.model.NotifyDestination;
 import com.example.contacthandbook.model.Student;
@@ -22,7 +23,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FirebaseManager {
     private static final String TAG = "Firebase manager";
@@ -194,8 +197,7 @@ public class FirebaseManager {
     public void addMessage(Notification notification, FirebaseCallBack.AddMessageCallBack callBack ) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(NOTIFICATION_CHILD).child(new Date().toString());
-
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 myRef.setValue(notification);
@@ -214,6 +216,7 @@ public class FirebaseManager {
         studentQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+
                 List<Notification> notifications = new ArrayList<>();
                 for (DataSnapshot notiSnapshot: snapshot.getChildren()) {
 
@@ -241,13 +244,28 @@ public class FirebaseManager {
         classQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                List<String> classes = new ArrayList<>();
+                List<Classes> classes = new ArrayList<>();
+
                 for (DataSnapshot classSnapshot: snapshot.getChildren()) {
-                    classes.add(classSnapshot.getKey());
+                    String className = classSnapshot.getKey();
+                    Teacher teacher = new Teacher();
+                    List<Student> studentList = new ArrayList<>();
+                    for (DataSnapshot child: classSnapshot.getChildren()) {
+                        Log.w("CLASSS", child.getValue().toString());
+                        if (child.getValue().toString().equals("teacher")) {
+                            teacher = new Teacher(child.getKey());
+                        }
+                        else {
+                            Student student = new Student(child.getKey());
+                            studentList.add(student);
+                        }
+                    }
+                    Classes classes1 = new Classes(className, teacher, studentList);
+                    classes.add(classes1);
+
                 }
                 callBack.onCallback(classes);
             }
-
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
@@ -256,10 +274,36 @@ public class FirebaseManager {
         });
     }
 
-    public  void addTeacherToClass(String className, Teacher teacher) {
+    public  void addTeacherToClass(String className, Teacher teacher, FirebaseCallBack.AddTeacherCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference addTeacherRef = database.getReference(CLASS_CHILD).child(className).child(teacher.getId());
-        addTeacherRef.setValue("Teacher");
+        addTeacherRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                addTeacherRef.setValue("Teacher");
+                callBack.onCallback(true);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(false);
+            }
+        });
+    }
+
+    public void getTeacher(String id, FirebaseCallBack.SingleTeacher callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference getTeacherRef = database.getReference(TEACHER_CHILD).child(id);
+        getTeacherRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Teacher teacher = snapshot.getValue(Teacher.class);
+                callBack.onCallback(teacher);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(new Teacher());
+            }
+        });
     }
 
 }

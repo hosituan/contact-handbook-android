@@ -1,12 +1,16 @@
 package com.example.contacthandbook.model;
 
 public class Teacher extends  Common {
-    String id;
-    String name;
-    String className;
+    String id = "";
+    String name = "";
+    String className = "";
 
     public Teacher(){
 
+    }
+
+    public Teacher(String id) {
+        this.id = id;
     }
 
     public Teacher(String id, String name, String className) {
