@@ -252,8 +252,8 @@ public class FirebaseManager {
                     List<Student> studentList = new ArrayList<>();
                     for (DataSnapshot child: classSnapshot.getChildren()) {
                         Log.w("CLASSS", child.getValue().toString());
-                        if (child.getValue().toString().equals("teacher")) {
-                            teacher = new Teacher(child.getKey());
+                        if (child.getKey().toString().equals("Teacher")) {
+                            teacher = new Teacher(child.getValue().toString());
                         }
                         else {
                             Student student = new Student(child.getKey());
@@ -276,11 +276,11 @@ public class FirebaseManager {
 
     public  void addTeacherToClass(String className, Teacher teacher, FirebaseCallBack.AddTeacherCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference addTeacherRef = database.getReference(CLASS_CHILD).child(className).child(teacher.getId());
+        DatabaseReference addTeacherRef = database.getReference(CLASS_CHILD).child(className).child("Teacher");
         addTeacherRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                addTeacherRef.setValue("Teacher");
+                addTeacherRef.setValue(teacher.getId());
                 callBack.onCallback(true);
             }
             @Override

@@ -31,6 +31,7 @@ import com.example.contacthandbook.model.Classes;
 import com.example.contacthandbook.model.Teacher;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.kaopiz.kprogresshud.KProgressHUD;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,13 @@ public class ClassFragment extends Fragment {
 
 
     public void loadList() {
+        //show progressHUD
+        KProgressHUD hud = KProgressHUD.create(getContext())
+                .setDetailsLabel("Loading classes")
+                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
+                .setAnimationSpeed(2)
+                .setDimAmount(0.5f)
+                .show();
         RecyclerView recyclerView = getView().findViewById(R.id.studentList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         firebaseManager.loadClasses(new FirebaseCallBack.AllClassName() {
@@ -99,7 +107,7 @@ public class ClassFragment extends Fragment {
                     }
                 });
                 recyclerView.setAdapter(adapter);
-//                hud.dismiss();
+                hud.dismiss();
                 adapter.notifyDataSetChanged();
             }
         });
@@ -138,6 +146,7 @@ public class ClassFragment extends Fragment {
                         .addButton(buttonTitle, -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
                             String teacherName = teacherSpinner.getSelectedItem().toString();
                             int index = teacherList.indexOf(teacherName);
+                            Log.w("aaa", teachers.get(index).getId());
                             firebaseManager.addTeacherToClass(name.getText().toString(), teachers.get(index), new FirebaseCallBack.AddTeacherCallBack() {
                                 @Override
                                 public void onCallback(boolean success) {
