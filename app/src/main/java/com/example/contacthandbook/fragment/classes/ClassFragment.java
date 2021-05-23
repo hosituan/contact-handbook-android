@@ -76,12 +76,14 @@ public class ClassFragment extends Fragment {
             @Override
             public void onCallback(List<Classes> classes) {
                 adapter = new ClassRecyclerAdapter(getContext(), classes);
+
                 adapter.setOnItemListenerListener(new StudentFragment.CommonRecyclerAdapter.OnItemListener() {
                     @SuppressLint("ResourceType")
                     @Override
                     public void OnItemClickListener(View view, int position) {
                         Intent classDetail = new Intent(getContext(), ClassDetailActivity.class);
                         classDetail.putExtra("className", classes.get(position).getClassName());
+                        classDetail.putExtra("teacherId", classes.get(position).getTeacher().getId());
                         getContext().startActivity(classDetail);
                     }
 
@@ -248,7 +250,6 @@ public class ClassFragment extends Fragment {
         public class ViewHolder extends RecyclerView.ViewHolder  {
             TextView mainTextView;
             TextView teacherName;
-
 
             ViewHolder(View itemView) {
                 super(itemView);
