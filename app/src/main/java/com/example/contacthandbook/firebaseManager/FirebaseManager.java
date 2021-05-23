@@ -306,6 +306,32 @@ public class FirebaseManager {
         });
     }
 
+
+    /*public void getAllStudentByClass(String className,FirebaseCallBack.AllStudentCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Query studentQuery = database.getReference(STUDENT_CHILD).child("className").child(className);
+        studentQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                List<Student> students = new ArrayList<>();
+                for (DataSnapshot studentSnapshot: snapshot.getChildren()) {
+                    Student student = studentSnapshot.getValue(Student.class);
+                    students.add(student);
+                }
+                callBack.onCallback(students);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+    }
+
+     */
+
+
 }
 
 

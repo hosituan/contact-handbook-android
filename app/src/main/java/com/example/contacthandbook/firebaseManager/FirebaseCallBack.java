@@ -45,6 +45,10 @@ public interface FirebaseCallBack {
         void onCallback(List<Classes> classes);
     }
 
+    interface  AllStudentName {
+        void onCallback(List<Student> students);
+    }
+
     interface SingleTeacher {
         void onCallback(Teacher teacher);
     }
