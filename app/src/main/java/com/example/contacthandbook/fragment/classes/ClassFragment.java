@@ -255,7 +255,7 @@ public class ClassFragment extends Fragment {
             firebaseManager.getTeacher(classes.getTeacher().getId(), new FirebaseCallBack.SingleTeacher() {
                 @Override
                 public void onCallback(Teacher teacher) {
-                    if (teacher.getName().equals("")) {
+                    if (teacher.getName() == null && teacher.getName().equals("")) {
                         holder.teacherName.setText("No Teacher");
                     }
                     else {
