@@ -73,8 +73,39 @@ public class FirebaseManager {
             }
 
         });
-
     }
+
+    public void getClassName(String userId, String role, FirebaseCallBack.ClassNameCallback callback) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Query userQuery = null;
+        if (role.equals("Student")) {
+            Log.e("USERNAME", userId);
+            userQuery = database.getReference(STUDENT_CHILD).child(userId).child("className");
+        }
+        else if (role.equals("Teacher")) {
+            userQuery = database.getReference(TEACHER_CHILD).child(userId).child("className");
+        }
+        else if (role.equals("Parent")) {
+
+        }
+        userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getValue() != null) {
+                    callback.onCallback(snapshot.getValue().toString());
+                }
+                else {
+                    callback.onCallback(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onCallback(null);
+            }
+        });
+    }
+
 
     public void getAllStudent(FirebaseCallBack.AllStudentCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -238,31 +269,30 @@ public class FirebaseManager {
         });
     }
 
-    public void loadClasses(FirebaseCallBack.AllClassName callBack) {
+    public void loadClasses(String classNameParam, FirebaseCallBack.AllClassName callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query classQuery = database.getReference(CLASS_CHILD).limitToLast(1000);
         classQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 List<Classes> classes = new ArrayList<>();
-
                 for (DataSnapshot classSnapshot: snapshot.getChildren()) {
                     String className = classSnapshot.getKey();
-                    Teacher teacher = new Teacher();
-                    List<Student> studentList = new ArrayList<>();
-                    for (DataSnapshot child: classSnapshot.getChildren()) {
-                        Log.w("CLASSS", child.getValue().toString());
-                        if (child.getKey().toString().equals("Teacher")) {
-                            teacher = new Teacher(child.getValue().toString());
+                    if (classNameParam.equals("All") || className.equals(classNameParam)) {
+                        Teacher teacher = new Teacher();
+                        List<Student> studentList = new ArrayList<>();
+                        for (DataSnapshot child : classSnapshot.getChildren()) {
+                            Log.w("CLASS", child.getValue().toString());
+                            if (child.getKey().toString().equals("Teacher")) {
+                                teacher = new Teacher(child.getValue().toString());
+                            } else {
+                                Student student = new Student(child.getKey());
+                                studentList.add(student);
+                            }
                         }
-                        else {
-                            Student student = new Student(child.getKey());
-                            studentList.add(student);
-                        }
+                        Classes classes1 = new Classes(className, teacher, studentList);
+                        classes.add(classes1);
                     }
-                    Classes classes1 = new Classes(className, teacher, studentList);
-                    classes.add(classes1);
-
                 }
                 callBack.onCallback(classes);
             }

@@ -173,6 +173,11 @@ public class MainActivity  extends AppCompatActivity  {
                             loadFragment(new NotificationFragment());
                         }
 
+                        if (drawerItem == classList) {
+                            toolbar.setTitle("Your Class");
+                            loadFragment(new ClassFragment());
+                        }
+
 
                         return false;
                     }
@@ -307,6 +312,12 @@ public class MainActivity  extends AppCompatActivity  {
                             loadFragment(new NotificationFragment());
                         }
 
+                        if (drawerItem == classList) {
+                            toolbar.setTitle("Class of Your children");
+                            loadFragment(new ClassFragment());
+                        }
+
+
 
                         return false;
                     }
@@ -363,6 +374,10 @@ public class MainActivity  extends AppCompatActivity  {
                         if (drawerItem == notificationList){
                             toolbar.setTitle("Notifications");
                             loadFragment(new NotificationFragment());
+                        }
+                        if (drawerItem == classList) {
+                            toolbar.setTitle("Your Class");
+                            loadFragment(new ClassFragment());
                         }
 
 

@@ -54,8 +54,8 @@ public class ClassDetailActivity extends AppCompatActivity {
         int year =Calendar.getInstance().get(Calendar.YEAR);
         recyclerViewList = findViewById(R.id.studentInClass);
         recyclerViewList.setLayoutManager(new LinearLayoutManager(this));
-        textViewNumberStudent = findViewById(R.id.numberofStudent);
-        textViewYear = findViewById(R.id.schoolyear);
+        textViewNumberStudent = findViewById(R.id.numberOfStudent);
+        textViewYear = findViewById(R.id.schoolYear);
         ArrayList<Student> arraymData = new ArrayList<Student>();
         firebaseManager.getAllStudent(new FirebaseCallBack.AllStudentCallBack() {
             @Override
@@ -65,8 +65,6 @@ public class ClassDetailActivity extends AppCompatActivity {
                         if (student.getClassName().contains(className)) {
                             arraymData.add(student);
                         }
-
-
                      }
                 ClassDetailAdapter adapter = new ClassDetailAdapter(ClassDetailActivity.this,arraymData);
                 recyclerViewList.setAdapter(adapter);
@@ -75,8 +73,6 @@ public class ClassDetailActivity extends AppCompatActivity {
 
             }
         });
-
-
 
     }
     public void loadFragment(Fragment fragment) {

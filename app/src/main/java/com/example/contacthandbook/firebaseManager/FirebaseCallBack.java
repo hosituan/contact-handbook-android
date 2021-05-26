@@ -53,6 +53,10 @@ public interface FirebaseCallBack {
         void onCallback(Teacher teacher);
     }
 
+    interface ClassNameCallback {
+        void onCallback(String className);
+    }
+
 }
 
 
