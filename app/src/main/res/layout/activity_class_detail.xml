@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Shcool Year:"
+        android:text="School Year:"
         android:textColor="@color/black"
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Num of Student:"
+        android:text="Number of Student:"
         android:textSize="20dp"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:text="HR teacher:"
+        android:text="Teacher:"
         android:textSize="20dp"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
-        android:text="Danh sách học sinh: "
+        android:text="Student list: "
         android:textSize="20dp"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
@@ -73,7 +73,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/numberofStudent"
+        android:id="@+id/numberOfStudent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -86,7 +86,7 @@
         app:layout_constraintTop_toBottomOf="@+id/homeroomTeacher" />
 
     <TextView
-        android:id="@+id/schoolyear"
+        android:id="@+id/schoolYear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -96,7 +96,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.217"
         app:layout_constraintStart_toEndOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/numberofStudent" />
+        app:layout_constraintTop_toBottomOf="@+id/numberOfStudent" />
 
     <LinearLayout
         android:layout_width="380dp"

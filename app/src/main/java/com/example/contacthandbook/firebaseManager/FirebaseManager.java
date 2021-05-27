@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.example.contacthandbook.MainActivity;
 import com.example.contacthandbook.fragment.home.HomeFragment;
 import com.example.contacthandbook.model.Classes;
+import com.example.contacthandbook.model.Mark;
 import com.example.contacthandbook.model.Notification;
 import com.example.contacthandbook.model.NotifyDestination;
 import com.example.contacthandbook.model.Student;
@@ -34,6 +35,7 @@ public class FirebaseManager {
     private static final String CLASS_CHILD = "classes";
     private static final String TEACHER_CHILD = "teachers";
     private static final String NOTIFICATION_CHILD = "notifications";
+    private static final String MARK_CHILD = "marks";
     private static final String FEEDBACK_CHILD = "feedback";
 
     private Context context;
@@ -73,8 +75,39 @@ public class FirebaseManager {
             }
 
         });
-
     }
+
+    public void getClassName(String userId, String role, FirebaseCallBack.ClassNameCallback callback) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Query userQuery = null;
+        if (role.equals("Student")) {
+            Log.e("USERNAME", userId);
+            userQuery = database.getReference(STUDENT_CHILD).child(userId).child("className");
+        }
+        else if (role.equals("Teacher")) {
+            userQuery = database.getReference(TEACHER_CHILD).child(userId).child("className");
+        }
+        else if (role.equals("Parent")) {
+
+        }
+        userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getValue() != null) {
+                    callback.onCallback(snapshot.getValue().toString());
+                }
+                else {
+                    callback.onCallback(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onCallback(null);
+            }
+        });
+    }
+
 
     public void getAllStudent(FirebaseCallBack.AllStudentCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -102,7 +135,7 @@ public class FirebaseManager {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(STUDENT_CHILD).child(student.getId());
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 myRef.setValue(student);
@@ -117,7 +150,7 @@ public class FirebaseManager {
 
         DatabaseReference addStudentAccountRef = database.getReference(USERS_CHILD).child(student.getId());
 
-        addStudentAccountRef.addValueEventListener(new ValueEventListener() {
+        addStudentAccountRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User stu = new User(student.getId(), "1", student.getName(), "Student");
@@ -163,7 +196,7 @@ public class FirebaseManager {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(TEACHER_CHILD).child(teacher.getId());
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 myRef.setValue(teacher);
@@ -178,7 +211,7 @@ public class FirebaseManager {
 
         DatabaseReference addTeacherAccountRef = database.getReference(USERS_CHILD).child(teacher.getId());
 
-        addTeacherAccountRef.addValueEventListener(new ValueEventListener() {
+        addTeacherAccountRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User tea = new User(teacher.getId(), "1", teacher.getName(), "Teacher");
@@ -190,8 +223,12 @@ public class FirebaseManager {
             }
         });
 
+        addTeacherToClass(teacher.getClassName(), teacher, new FirebaseCallBack.AddTeacherCallBack() {
+            @Override
+            public void onCallback(boolean success) {
 
-
+            }
+        });
     }
 
     public void addMessage(Notification notification, FirebaseCallBack.AddMessageCallBack callBack ) {
@@ -238,31 +275,32 @@ public class FirebaseManager {
         });
     }
 
-    public void loadClasses(FirebaseCallBack.AllClassName callBack) {
+    public void loadClasses(String classNameParam, FirebaseCallBack.AllClassName callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         Query classQuery = database.getReference(CLASS_CHILD).limitToLast(1000);
         classQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 List<Classes> classes = new ArrayList<>();
-
                 for (DataSnapshot classSnapshot: snapshot.getChildren()) {
                     String className = classSnapshot.getKey();
-                    Teacher teacher = new Teacher();
-                    List<Student> studentList = new ArrayList<>();
-                    for (DataSnapshot child: classSnapshot.getChildren()) {
-                        Log.w("CLASSS", child.getValue().toString());
-                        if (child.getKey().toString().equals("Teacher")) {
-                            teacher = new Teacher(child.getValue().toString());
-                        }
-                        else {
-                            Student student = new Student(child.getKey());
-                            studentList.add(student);
+                    if (className != null && classNameParam != null) {
+                        if ((classNameParam.equals("All") || className.equals(classNameParam))) {
+                            Teacher teacher = new Teacher();
+                            List<Student> studentList = new ArrayList<>();
+                            for (DataSnapshot child : classSnapshot.getChildren()) {
+                                Log.w("CLASS", child.getValue().toString());
+                                if (child.getKey().toString().equals("Teacher")) {
+                                    teacher = new Teacher(child.getValue().toString());
+                                } else {
+                                    Student student = new Student(child.getKey());
+                                    studentList.add(student);
+                                }
+                            }
+                            Classes classes1 = new Classes(className, teacher, studentList);
+                            classes.add(classes1);
                         }
                     }
-                    Classes classes1 = new Classes(className, teacher, studentList);
-                    classes.add(classes1);
-
                 }
                 callBack.onCallback(classes);
             }
@@ -307,29 +345,42 @@ public class FirebaseManager {
     }
 
 
-    /*public void getAllStudentByClass(String className,FirebaseCallBack.AllStudentCallBack callBack) {
+    public void addMark(Student student, Mark mark, FirebaseCallBack.SuccessCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        Query studentQuery = database.getReference(STUDENT_CHILD).child("className").child(className);
-        studentQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference markRef = database.getReference(MARK_CHILD).child(String.valueOf(mark.getYear())).child(student.getId());
+        markRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                List<Student> students = new ArrayList<>();
-                for (DataSnapshot studentSnapshot: snapshot.getChildren()) {
-                    Student student = studentSnapshot.getValue(Student.class);
-                    students.add(student);
-                }
-                callBack.onCallback(students);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                markRef.setValue(mark);
+                callBack.onCallback(true);
             }
-
             @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(false);
             }
         });
     }
 
-     */
+    public void getMark(Student student, int year, FirebaseCallBack.GetMarkCallback callback) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference markRef = database.getReference(MARK_CHILD).child(String.valueOf(year)).child(student.getId());
+        markRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getValue() != null) {
+                    callback.onCallback(snapshot.getValue(Mark.class));
+                }
+                else {
+                    callback.onCallback(new Mark());
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callback.onCallback(new Mark());
+            }
+        });
+    }
+
 
 
 }

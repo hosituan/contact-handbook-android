@@ -73,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = this.getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
         editor.putString("name", user.getName());
         editor.putString("role", user.getRole());
+        editor.putString("username", user.getUsername());
         Log.w(TAG, user.getName());
         Log.w(TAG, user.getRole());
         editor.putBoolean("isRemember", remember);

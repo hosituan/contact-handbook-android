@@ -3,6 +3,7 @@ package com.example.contacthandbook.fragment.classes;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -28,7 +29,9 @@ import com.example.contacthandbook.firebaseManager.FirebaseCallBack;
 import com.example.contacthandbook.firebaseManager.FirebaseManager;
 import com.example.contacthandbook.fragment.students.StudentFragment;
 import com.example.contacthandbook.model.Classes;
+import com.example.contacthandbook.model.NotifyDestination;
 import com.example.contacthandbook.model.Teacher;
+import com.example.contacthandbook.model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.kaopiz.kprogresshud.KProgressHUD;
@@ -36,31 +39,41 @@ import com.kaopiz.kprogresshud.KProgressHUD;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import static android.content.Context.MODE_PRIVATE;
 
 public class ClassFragment extends Fragment {
     ClassRecyclerAdapter adapter;
-
+    private static final String PREFS_NAME = "USER_INFO";
     FirebaseManager firebaseManager = new FirebaseManager(getContext());
     public ClassFragment() {
 
     }
 
-
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // TODO: Use the ViewModel
         FloatingActionButton fab = getView().findViewById(R.id.fab);
+        User user = getSavedInfo();
+        if (!user.getRole().equals("Admin")) {
+            fab.setVisibility(View.GONE);
+        }
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showDialog(new Classes(), true);
             }
         });
-
         loadList();
-
     }
 
+    public User getSavedInfo() {
+        User user = new User();
+        SharedPreferences sharedPref = getContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        user.setName(sharedPref.getString("name", "Contact Handbook"));
+        user.setRole(sharedPref.getString("role", "student"));
+        user.setUsername(sharedPref.getString("username", "1"));
+        return  user;
+    }
 
     public void loadList() {
         //show progressHUD
@@ -72,7 +85,22 @@ public class ClassFragment extends Fragment {
                 .show();
         RecyclerView recyclerView = getView().findViewById(R.id.studentList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        firebaseManager.loadClasses(new FirebaseCallBack.AllClassName() {
+        User user = getSavedInfo();
+        if (user.getRole().equals("Admin")) {
+            getClasses("All", hud, recyclerView);
+        }
+        else {
+            firebaseManager.getClassName(user.getUsername(), user.getRole(), new FirebaseCallBack.ClassNameCallback() {
+                @Override
+                public void onCallback(String className) {
+                    getClasses(className, hud, recyclerView);
+                }
+            });
+        }
+    }
+
+    public void getClasses(String className, KProgressHUD hud, RecyclerView recyclerView) {
+        firebaseManager.loadClasses(className, new FirebaseCallBack.AllClassName() {
             @Override
             public void onCallback(List<Classes> classes) {
                 adapter = new ClassRecyclerAdapter(getContext(), classes);
@@ -227,7 +255,7 @@ public class ClassFragment extends Fragment {
             firebaseManager.getTeacher(classes.getTeacher().getId(), new FirebaseCallBack.SingleTeacher() {
                 @Override
                 public void onCallback(Teacher teacher) {
-                    if (teacher.getName().equals("")) {
+                    if (teacher.getName() == null && teacher.getName().equals("")) {
                         holder.teacherName.setText("No Teacher");
                     }
                     else {
