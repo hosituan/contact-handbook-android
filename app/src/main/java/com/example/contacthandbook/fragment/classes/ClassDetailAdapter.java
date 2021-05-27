@@ -54,7 +54,7 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     // inflates the row layout from xml when needed
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.common_row, parent, false);
+        View view = mInflater.inflate(R.layout.detail_row, parent, false);
         view.setOnClickListener(new RV_ItemListener());
         view.setOnLongClickListener(new RV_ItemListener());
         return new ViewHolder(view);
@@ -65,6 +65,7 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     public void onBindViewHolder(ViewHolder holder, int position) {
         Common object = mData.get(position);
         holder.myTextView.setText(object.getName());
+        holder.grade.setText("Point");
         holder.itemView.setId(position);
     }
 
@@ -78,10 +79,11 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder  {
         TextView myTextView;
-
+        TextView grade;
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.title);
+            myTextView = itemView.findViewById(R.id.studentName);
+            grade = itemView.findViewById(R.id.TotalGrade);
         }
 
     }
