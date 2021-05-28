@@ -84,7 +84,6 @@ public class FeedbackFragment  extends Fragment {
         TextInputEditText FeedbackEditText = dialogLayout.findViewById(R.id.feedback_editText);
         User user = getSavedInfo();
 
-        final String[] reciverName = new String[1];
         Spinner spinnerDestination = dialogLayout.findViewById(R.id.spinner_student);
         ArrayList<String> arraymData = new ArrayList<String>();
         firebaseManager.getClassName(user.getUsername(), user.getRole(), new FirebaseCallBack.ClassNameCallback() {
@@ -97,16 +96,18 @@ public class FeedbackFragment  extends Fragment {
                                 arraymData.add(student.getId());
                             }
                         }
+                        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>
+                                (getContext(), android.R.layout.simple_spinner_dropdown_item, arraymData);
+                        spinnerDestination.setAdapter(spinnerArrayAdapter);
                     }
                 });
             }
         });
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>
-                (getContext(), android.R.layout.simple_spinner_dropdown_item, arraymData);
-        spinnerDestination.setAdapter(spinnerArrayAdapter);
+
         final String[] reciverID = new String[1];
-        String sendToStu;
+        final String[] sendToStu = new String[1];
+
         if(user.getRole().equals("Student")) {
             spinnerDestination.setVisibility(View.GONE);
             firebaseManager.getClassName(user.getUsername(), user.getRole(), new FirebaseCallBack.ClassNameCallback() {
@@ -124,7 +125,6 @@ public class FeedbackFragment  extends Fragment {
                                         getSentTo.setText("No teacher");
                                     } else {
                                         getSentTo.setText(teacher.getName());
-                                        reciverName[0] = teacher.getName();
                                     }
                                 }
                             });
@@ -137,9 +137,6 @@ public class FeedbackFragment  extends Fragment {
         }
         if(user.getRole().equals("Teacher")){
             spinnerDestination.setVisibility(View.VISIBLE);
-            if (spinnerDestination.getSelectedItem() != null) {
-                sendToStu =  spinnerDestination.getSelectedItem().toString();
-            }
             getSentTo.setVisibility(View.GONE);
 
         }
@@ -151,9 +148,8 @@ public class FeedbackFragment  extends Fragment {
                     if (!titleFeedback.getText().toString().equals("") && !FeedbackEditText.getText().toString().equals("")) {
 
 
-
-
-                            Feedback feedback = new Feedback(titleFeedback.getText().toString(), FeedbackEditText.getText().toString(), reciverName[0], user.getUsername(), reciverID[0]);
+                        if(user.getRole().equals("Student")) {
+                            Feedback feedback = new Feedback(titleFeedback.getText().toString(), FeedbackEditText.getText().toString(), reciverID[0], user.getUsername());
                             firebaseManager.addFeedBack(feedback, new FirebaseCallBack.AddMessageCallBack() {
                                 @Override
                                 public void onCallback(boolean success) {
@@ -161,12 +157,33 @@ public class FeedbackFragment  extends Fragment {
                                         dialog.dismiss();
                                         CommonFunction.showCommonAlert(getContext(), "Message Sent", "OK");
                                         loadList();
-                                    }
-                                    else {
+                                    } else {
                                         CommonFunction.showCommonAlert(getContext(), "Something went wrong", "Let me check");
                                     }
                                 }
                             });
+                        }
+                            if(user.getRole().equals("Teacher")){
+
+                                if (spinnerDestination.getSelectedItem() != null) {
+                                    sendToStu[0] =  spinnerDestination.getSelectedItem().toString();
+                                }
+
+                                Feedback feedback = new Feedback(titleFeedback.getText().toString(), FeedbackEditText.getText().toString(), sendToStu[0], user.getUsername());
+                                firebaseManager.addFeedBack(feedback, new FirebaseCallBack.AddMessageCallBack() {
+                                    @Override
+                                    public void onCallback(boolean success) {
+                                        if (success) {
+                                            dialog.dismiss();
+                                            CommonFunction.showCommonAlert(getContext(), "Message Sent", "OK");
+                                            loadList();
+                                        }
+                                        else {
+                                            CommonFunction.showCommonAlert(getContext(), "Something went wrong", "Let me check");
+                                        }
+                                    }
+                                });
+                            }
                         }
 
 

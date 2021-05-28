@@ -6,7 +6,6 @@ public class Feedback {
     String title = "";
     String content;
     String reciver;
-    String reciverID;
     String sender;
     String dateStr = "";
 
@@ -15,13 +14,12 @@ public class Feedback {
 
     }
 
-    public Feedback(String title,String content,String reciver,String sender,String ReciverID){
+    public Feedback(String title,String content,String reciver,String sender){
         this.title = title;
         this.content = content;
         this.reciver = reciver;
         this.sender = sender;
         this.dateStr = new Date().toString();
-        this.reciverID = reciverID;
     }
 
     public String getContent(){return content;}
@@ -48,9 +46,6 @@ public class Feedback {
         return dateStr;
     }
 
-    public void setReciverID(String reciverID){this.reciverID = reciverID;}
-
-    public String getReciverID(){ return reciverID ;}
 
     public void setDate(Date date) {
         this.date = date;

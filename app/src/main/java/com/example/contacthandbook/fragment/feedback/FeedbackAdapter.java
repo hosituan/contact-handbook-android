@@ -43,7 +43,7 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Feedback feedback = mData.get(position);
-        holder.destinationTextView.setText("TO: " + feedback.getReciver());
+
         holder.titleTextView.setText("Title: " + feedback.getTitle());
         holder.messageTextView.setText(feedback.getContent());
         holder.dateTextView.setText("Date: " + feedback.getDateStr());
@@ -51,6 +51,12 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
             @Override
             public void onCallback(User user) {
                 holder.sender.setText("From: " + user.getName());
+            }
+        });
+        firebaseManager.getUserName(feedback.getReciver(), new FirebaseCallBack.SingleUser() {
+            @Override
+            public void onCallback(User user) {
+                holder.destinationTextView.setText("TO: " + user.getName());
             }
         });
 

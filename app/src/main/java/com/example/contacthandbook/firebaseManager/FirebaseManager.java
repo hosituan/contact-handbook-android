@@ -422,33 +422,8 @@ public class FirebaseManager {
     }
 
 
-    public void loadFeedback(String userID, FirebaseCallBack.AllFeedBackCallBack callBack) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        Query studentQuery = database.getReference(NOTIFICATION_CHILD).limitToLast(1000);
-        studentQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
 
-                List<Feedback> feedbacks = new ArrayList<>();
-                for (DataSnapshot feedSnapshot: snapshot.getChildren()) {
 
-                    Feedback Feedback = feedSnapshot.getValue(Feedback.class);
-                    if (Feedback.getSender() == userID || Feedback.getReciverID() == userID )
-                    {
-                        feedbacks.add(Feedback);
-                    }
-
-                }
-                callBack.onCallback(feedbacks);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
-    }
 
 
 
