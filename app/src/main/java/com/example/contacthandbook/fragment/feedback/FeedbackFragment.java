@@ -92,7 +92,6 @@ public class FeedbackFragment  extends Fragment {
             public void onCallback(String className) {
                 firebaseManager.getAllStudent(new FirebaseCallBack.AllStudentCallBack() {
                     public void onCallback(List<Student> students) {
-
                         for (Student student : students) {
                             if (student.getClassName().contains(className)) {
                                 arraymData.add(student.getId());
@@ -103,12 +102,11 @@ public class FeedbackFragment  extends Fragment {
             }
         });
 
-
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>
                 (getContext(), android.R.layout.simple_spinner_dropdown_item, arraymData);
         spinnerDestination.setAdapter(spinnerArrayAdapter);
         final String[] reciverID = new String[1];
-        String sendToStu ;
+        String sendToStu;
         if(user.getRole().equals("Student")) {
             spinnerDestination.setVisibility(View.GONE);
             firebaseManager.getClassName(user.getUsername(), user.getRole(), new FirebaseCallBack.ClassNameCallback() {
@@ -139,7 +137,9 @@ public class FeedbackFragment  extends Fragment {
         }
         if(user.getRole().equals("Teacher")){
             spinnerDestination.setVisibility(View.VISIBLE);
-             sendToStu =  spinnerDestination.getSelectedItem().toString();
+            if (spinnerDestination.getSelectedItem() != null) {
+                sendToStu =  spinnerDestination.getSelectedItem().toString();
+            }
             getSentTo.setVisibility(View.GONE);
 
         }
