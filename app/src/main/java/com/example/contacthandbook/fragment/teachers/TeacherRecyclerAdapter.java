@@ -1,5 +1,4 @@
-package com.example.contacthandbook.fragment.classes;
-
+package com.example.contacthandbook.fragment.teachers;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,27 +10,27 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.contacthandbook.R;
 import com.example.contacthandbook.model.Common;
-import com.example.contacthandbook.model.Student;
+import com.example.contacthandbook.model.Teacher;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.ViewHolder> {
+public class TeacherRecyclerAdapter extends RecyclerView.Adapter<TeacherRecyclerAdapter.ViewHolder> {
 
-    private List<Student> mData;
+    private List<Teacher> mData;
     private LayoutInflater mInflater;
-    private OnItemListener onItemListener;
+    private TeacherRecyclerAdapter.OnItemListener onItemListener;
 
     // create arraylist
-    private ArrayList<Student> arrayData;
+    private ArrayList<Teacher> arrayData;
 
     // data is passed into the constructor
-    public ClassDetailAdapter(Context context, List<Student> data) {
+    public TeacherRecyclerAdapter(Context context, List<Teacher> data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
 
-        this.arrayData = new ArrayList<Student>();
+        this.arrayData = new ArrayList<Teacher>();
         this.arrayData.addAll(mData);
     }
 
@@ -42,9 +41,9 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
         if (charText.length() == 0) {
             mData.addAll(arrayData);
         } else {
-            for (Student student : arrayData) {
-                if (student.getClassName().toLowerCase(Locale.getDefault()).contains(charText)) {
-                    mData.add(student);
+            for (Teacher teacher : arrayData) {
+                if (teacher.getName().toLowerCase(Locale.getDefault()).contains(charText)) {
+                    mData.add(teacher);
                 }
             }
         }
@@ -53,19 +52,18 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
 
     // inflates the row layout from xml when needed
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.detail_row, parent, false);
-        view.setOnClickListener(new RV_ItemListener());
-        view.setOnLongClickListener(new RV_ItemListener());
-        return new ViewHolder(view);
+    public TeacherRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = mInflater.inflate(R.layout.common_row, parent, false);
+        view.setOnClickListener(new TeacherRecyclerAdapter.RV_ItemListener());
+        view.setOnLongClickListener(new TeacherRecyclerAdapter.RV_ItemListener());
+        return new TeacherRecyclerAdapter.ViewHolder(view);
     }
 
     // binds the data to the TextView in each row
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(TeacherRecyclerAdapter.ViewHolder holder, int position) {
         Common object = mData.get(position);
         holder.myTextView.setText(object.getName());
-        holder.grade.setText("Point");
         holder.itemView.setId(position);
     }
 
@@ -79,11 +77,10 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder  {
         TextView myTextView;
-        TextView grade;
+
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.studentName);
-            grade = itemView.findViewById(R.id.TotalGrade);
+            myTextView = itemView.findViewById(R.id.title);
         }
 
     }
@@ -92,8 +89,6 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
         void OnItemClickListener(View view, int position);
         void OnItemLongClickListener(View view, int position);
     }
-
-
 
     class RV_ItemListener implements View.OnClickListener, View.OnLongClickListener{
 
@@ -112,7 +107,7 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
         }
     }
 
-    public void setOnItemListenerListener(OnItemListener listener){
+    public void setOnItemListenerListener(TeacherRecyclerAdapter.OnItemListener listener){
         this.onItemListener = listener;
     }
 

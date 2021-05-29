@@ -8,8 +8,6 @@ public class Mark {
     Double chemistry = -1.0;
     Double literature = -1.0;
     String date = "";
-
-
     public Mark() {
 
     }
@@ -68,5 +66,9 @@ public class Mark {
 
     public void setStudentID(String studentID) {
         this.studentID = studentID;
+    }
+
+    public double getAveragePoint() {
+        return (math + physic + chemistry + literature) / 4;
     }
 }

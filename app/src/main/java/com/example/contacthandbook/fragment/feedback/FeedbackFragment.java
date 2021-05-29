@@ -52,8 +52,6 @@ public class FeedbackFragment  extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        // TODO: Use the ViewModel
         FloatingActionButton fab = getView().findViewById(R.id.fab);
         User user = getSavedInfo();
         if (user.getRole().equals("Admin")) {
@@ -104,8 +102,7 @@ public class FeedbackFragment  extends Fragment {
             }
         });
 
-
-        final String[] reciverID = new String[1];
+        final String[] receiveID = new String[1];
         final String[] sendToStu = new String[1];
 
         if(user.getRole().equals("Student")) {
@@ -116,7 +113,7 @@ public class FeedbackFragment  extends Fragment {
                     firebaseManager.getClass(className, new FirebaseCallBack.SingleClass() {
                         @Override
                         public void onCallback(String teacherId) {
-                            reciverID[0] = teacherId;
+                            receiveID[0] = teacherId;
 
                             firebaseManager.getTeacher(teacherId, new FirebaseCallBack.SingleTeacher() {
                                 @Override
@@ -135,59 +132,42 @@ public class FeedbackFragment  extends Fragment {
                 }
             });
         }
+
+        //Teacher can select Student, student only give feedback to their teacher
         if(user.getRole().equals("Teacher")){
             spinnerDestination.setVisibility(View.VISIBLE);
             getSentTo.setVisibility(View.GONE);
-
         }
+
         CFAlertDialog.Builder builder = new CFAlertDialog.Builder(getContext())
                 .setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT)
                 .setHeaderView(dialogLayout)
                 .addButton("SEND", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-
                     if (!titleFeedback.getText().toString().equals("") && !FeedbackEditText.getText().toString().equals("")) {
-
-
                         if(user.getRole().equals("Student")) {
-                            Feedback feedback = new Feedback(titleFeedback.getText().toString(), FeedbackEditText.getText().toString(), reciverID[0], user.getUsername());
+                            Feedback feedback = new Feedback(titleFeedback.getText().toString(), FeedbackEditText.getText().toString(), receiveID[0], user.getUsername());
                             firebaseManager.addFeedBack(feedback, new FirebaseCallBack.AddMessageCallBack() {
                                 @Override
                                 public void onCallback(boolean success) {
-                                    if (success) {
-                                        dialog.dismiss();
-                                        CommonFunction.showCommonAlert(getContext(), "Message Sent", "OK");
-                                        loadList();
-                                    } else {
-                                        CommonFunction.showCommonAlert(getContext(), "Something went wrong", "Let me check");
-                                    }
+                                    dialog.dismiss();
+                                    resultAddAction(success);
                                 }
                             });
                         }
                             if(user.getRole().equals("Teacher")){
-
                                 if (spinnerDestination.getSelectedItem() != null) {
                                     sendToStu[0] =  spinnerDestination.getSelectedItem().toString();
                                 }
-
                                 Feedback feedback = new Feedback(titleFeedback.getText().toString(), FeedbackEditText.getText().toString(), sendToStu[0], user.getUsername());
                                 firebaseManager.addFeedBack(feedback, new FirebaseCallBack.AddMessageCallBack() {
                                     @Override
                                     public void onCallback(boolean success) {
-                                        if (success) {
-                                            dialog.dismiss();
-                                            CommonFunction.showCommonAlert(getContext(), "Message Sent", "OK");
-                                            loadList();
-                                        }
-                                        else {
-                                            CommonFunction.showCommonAlert(getContext(), "Something went wrong", "Let me check");
-                                        }
+                                        dialog.dismiss();
+                                        resultAddAction(success);
                                     }
                                 });
                             }
                         }
-
-
-
                 })
                 .addButton("CANCEL", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, ((dialog, which) -> {
                     dialog.dismiss();
@@ -196,12 +176,24 @@ public class FeedbackFragment  extends Fragment {
         builder.show();
     }
 
+    //show added feedback result depend on success value
+    void resultAddAction(boolean success) {
+        if (success) {
+            CommonFunction.showCommonAlert(getContext(), "Message Sent", "OK");
+            loadList();
+        } else {
+            CommonFunction.showCommonAlert(getContext(), "Something went wrong", "Let me check");
+        }
+    }
+
+
+    //load or reload list
     void loadList() {
         User user = getSavedInfo();
-        ArrayList<Feedback> arraymData = new ArrayList<Feedback>();
+        ArrayList<Feedback> arrayData = new ArrayList<Feedback>();
         //show progressHUD
         KProgressHUD hud = KProgressHUD.create(getContext())
-                .setDetailsLabel("Loading notification")
+                .setDetailsLabel("Loading feedback...")
                 .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
                 .setAnimationSpeed(2)
                 .setDimAmount(0.5f)
@@ -214,10 +206,10 @@ public class FeedbackFragment  extends Fragment {
             public void onCallback(List<Feedback> feedbacks) {
                 for (Feedback feedback : feedbacks) {
                     if (feedback.getSender().contains(user.getUsername()) || feedback.getReciver().contains(user.getUsername())) {
-                        arraymData.add(feedback);
+                        arrayData.add(feedback);
                     }
                 }
-                adapter = new FeedbackAdapter(getContext(), arraymData);
+                adapter = new FeedbackAdapter(getContext(), arrayData);
                 adapter.setOnItemListenerListener(new FeedbackAdapter.OnItemListener() {
                     @Override
                     public void OnItemClickListener(View view, int position) {

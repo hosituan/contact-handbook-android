@@ -5,7 +5,7 @@ public class User extends Common {
     String username;
     String password;
     String name = "";
-    String role = "student";
+    String role = "Student";
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
