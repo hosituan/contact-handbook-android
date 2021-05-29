@@ -1,61 +1,39 @@
-package com.example.contacthandbook.fragment.classes;
-
+package com.example.contacthandbook.fragment.feedback;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
-
+import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import com.example.contacthandbook.R;
-import com.example.contacthandbook.fragment.students.StudentFragment;
-import com.example.contacthandbook.model.Common;
-import com.example.contacthandbook.model.Student;
+import com.example.contacthandbook.firebaseManager.FirebaseCallBack;
+import com.example.contacthandbook.firebaseManager.FirebaseManager;
+import com.example.contacthandbook.model.Feedback;
+import com.example.contacthandbook.model.User;
 
-import java.util.ArrayList;
+
 import java.util.List;
-import java.util.Locale;
 
-public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.ViewHolder> {
+public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHolder>  {
 
-    private List<Student> mData;
+    private List<Feedback> mData;
     private LayoutInflater mInflater;
     private OnItemListener onItemListener;
-
-    // create arraylist
-    private ArrayList<Student> arraymData;
-
+    FirebaseManager firebaseManager ;
     // data is passed into the constructor
-    public ClassDetailAdapter(Context context, List<Student> data) {
+    public FeedbackAdapter(Context context, List<Feedback> data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
-
-        this.arraymData = new ArrayList<Student>();
-        this.arraymData.addAll(mData);
-    }
-
-    // class filter
-    public void filter(String charText) {
-        charText = charText.toLowerCase(Locale.getDefault());
-        mData.clear();
-        if (charText.length() == 0) {
-            mData.addAll(arraymData);
-        } else {
-            for (Student student : arraymData) {
-                if (student.getClassName().toLowerCase(Locale.getDefault()).contains(charText)) {
-                    mData.add(student);
-                }
-            }
-        }
-        notifyDataSetChanged();
+        firebaseManager = new FirebaseManager(context);
     }
 
     // inflates the row layout from xml when needed
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.detail_row, parent, false);
+        View view = mInflater.inflate(R.layout.feedback_row, parent, false);
         view.setOnClickListener(new RV_ItemListener());
         view.setOnLongClickListener(new RV_ItemListener());
         return new ViewHolder(view);
@@ -64,9 +42,24 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Common object = mData.get(position);
-        holder.myTextView.setText(object.getName());
-        holder.grade.setText("Point");
+        Feedback feedback = mData.get(position);
+
+        holder.titleTextView.setText("Title: " + feedback.getTitle());
+        holder.messageTextView.setText(feedback.getContent());
+        holder.dateTextView.setText("Date: " + feedback.getDateStr());
+        firebaseManager.getUserName(feedback.getSender(), new FirebaseCallBack.SingleUser() {
+            @Override
+            public void onCallback(User user) {
+                holder.sender.setText("From: " + user.getName());
+            }
+        });
+        firebaseManager.getUserName(feedback.getReciver(), new FirebaseCallBack.SingleUser() {
+            @Override
+            public void onCallback(User user) {
+                holder.destinationTextView.setText("TO: " + user.getName());
+            }
+        });
+
         holder.itemView.setId(position);
     }
 
@@ -77,14 +70,21 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     }
 
 
+
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder  {
-        TextView myTextView;
-        TextView grade;
+        TextView destinationTextView;
+        TextView titleTextView;
+        TextView messageTextView;
+        TextView dateTextView;
+        TextView sender;
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.studentName);
-            grade = itemView.findViewById(R.id.TotalGrade);
+            destinationTextView = itemView.findViewById(R.id.destination);
+            titleTextView = itemView.findViewById(R.id.title);
+            messageTextView = itemView.findViewById(R.id.message);
+            dateTextView = itemView.findViewById(R.id.date);
+            sender = itemView.findViewById(R.id.sender);
         }
 
     }
@@ -93,8 +93,6 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
         void OnItemClickListener(View view, int position);
         void OnItemLongClickListener(View view, int position);
     }
-
-
 
     class RV_ItemListener implements View.OnClickListener, View.OnLongClickListener{
 
@@ -118,3 +116,4 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     }
 
 }
+

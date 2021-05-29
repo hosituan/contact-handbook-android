@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.crowdfire.cfalertdialog.CFAlertDialog;
 import com.example.contacthandbook.fragment.classes.ClassFragment;
+import com.example.contacthandbook.fragment.feedback.FeedbackFragment;
 import com.example.contacthandbook.fragment.home.HomeFragment;
 import com.example.contacthandbook.fragment.notification.NotificationFragment;
 import com.example.contacthandbook.fragment.students.StudentFragment;
@@ -177,6 +178,10 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Your Class");
                             loadFragment(new ClassFragment());
                         }
+                        if(drawerItem == feedback){
+                            toolbar.setTitle("Your feedback");
+                            loadFragment(new FeedbackFragment());
+                        }
 
 
                         return false;
@@ -252,6 +257,10 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Class");
                             loadFragment(new ClassFragment());
                         }
+                        if(drawerItem == feedback){
+                            toolbar.setTitle("Feedback");
+                            loadFragment(new FeedbackFragment());
+                        }
 
 
                         return false;
@@ -316,6 +325,10 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Class of Your children");
                             loadFragment(new ClassFragment());
                         }
+                        if(drawerItem == feedback){
+                            toolbar.setTitle("Your feedback");
+                            loadFragment(new FeedbackFragment());
+                        }
 
 
 
@@ -378,6 +391,10 @@ public class MainActivity  extends AppCompatActivity  {
                         if (drawerItem == classList) {
                             toolbar.setTitle("Your Class");
                             loadFragment(new ClassFragment());
+                        }
+                        if(drawerItem == feedback){
+                            toolbar.setTitle("Feedback");
+                            loadFragment(new FeedbackFragment());
                         }
 
 
