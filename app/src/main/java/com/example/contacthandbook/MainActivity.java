@@ -39,6 +39,14 @@ public class MainActivity  extends AppCompatActivity  {
     PrimaryDrawerItem logout = new PrimaryDrawerItem().withName("Logout");
     Drawer drawer;
     MaterialSearchView searchView;
+
+    PrimaryDrawerItem home = new PrimaryDrawerItem().withName("Home");
+    PrimaryDrawerItem studentList = new PrimaryDrawerItem().withName("Students");
+    PrimaryDrawerItem teacherList = new PrimaryDrawerItem().withName("Teachers");
+    PrimaryDrawerItem notificationList = new PrimaryDrawerItem().withName("Notifications");
+    PrimaryDrawerItem classList = new PrimaryDrawerItem().withName("Classes");
+    PrimaryDrawerItem feedback = new PrimaryDrawerItem().withName("Feedback");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,8 +55,6 @@ public class MainActivity  extends AppCompatActivity  {
         setSupportActionBar(toolbar);
         searchView = findViewById(R.id.search_view);
         User user = getSavedInfo();
-        Fragment homeFrag = new HomeFragment();
-        loadFragment(homeFrag);
         getSupportActionBar().setTitle("Home");
         // Create the AccountHeader
         AccountHeader headerResult = new AccountHeaderBuilder()
@@ -75,31 +81,25 @@ public class MainActivity  extends AppCompatActivity  {
                 })
                 .build();
 
-
         if (user.getRole().equals("Admin")) {
             adminAction(headerResult);
+            loadFragment(new NotificationFragment());
         }
-        if (user.getRole().equals("Student")) {
+        if (user.getRole().equals("Student") || user.getRole().equals("Parents")) {
             studentAction(headerResult);
-        }
-        if (user.getRole().equals("Parent")) {
-            parentAction(headerResult);
+            loadFragment(new HomeFragment());
         }
         if (user.getRole().equals("Teacher")) {
             teacherAction(headerResult);
+            loadFragment(new NotificationFragment());
         }
-
-
-
     }
 
 
     @Override
     public void onBackPressed()
     {
-        // code here to show dialog
-
-        super.onBackPressed();  // optional depending on your needs
+        super.onBackPressed();  // optional
         Fragment homeFrag = new HomeFragment();
         loadFragment(homeFrag);
         getSupportActionBar().setTitle("Home");
@@ -122,12 +122,7 @@ public class MainActivity  extends AppCompatActivity  {
         fragmentTransaction.commit();
     }
 
-
     public void studentAction(AccountHeader header) {
-        PrimaryDrawerItem home = new PrimaryDrawerItem().withName("Home");
-        PrimaryDrawerItem notificationList = new PrimaryDrawerItem().withName("Notifications");
-        PrimaryDrawerItem classList = new PrimaryDrawerItem().withName("Classes");
-        PrimaryDrawerItem feedback = new PrimaryDrawerItem().withName("Feedback");
         drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
@@ -151,29 +146,13 @@ public class MainActivity  extends AppCompatActivity  {
                             getSupportActionBar().setTitle("Home");
                         }
                         if (drawerItem == logout) {
-                            CFAlertDialog.Builder builder = new CFAlertDialog.Builder(MainActivity.this)
-                                    .setDialogStyle(CFAlertDialog.CFAlertStyle.BOTTOM_SHEET)
-                                    .setTitle("Are you sure?")
-                                    .setMessage("Logout and clear your local information?")
-                                    .addButton("YES", -1, -1, CFAlertDialog.CFAlertActionStyle.NEGATIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                                        SharedPreferences settings = (SharedPreferences) getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                                        settings.edit().clear().commit();
-                                        dialog.dismiss();
-                                        finish();
-                                    })
-                                    .addButton("CANCEL", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
-
-                            builder.show();
+                            logoutAction();
                             return true;
                         }
-
                         if (drawerItem == notificationList){
                             toolbar.setTitle("Notifications");
                             loadFragment(new NotificationFragment());
                         }
-
                         if (drawerItem == classList) {
                             toolbar.setTitle("Your Class");
                             loadFragment(new ClassFragment());
@@ -182,8 +161,6 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Your feedback");
                             loadFragment(new FeedbackFragment());
                         }
-
-
                         return false;
                     }
                 })
@@ -191,12 +168,6 @@ public class MainActivity  extends AppCompatActivity  {
     }
 
     public void adminAction(AccountHeader header) {
-        PrimaryDrawerItem home = new PrimaryDrawerItem().withName("Home");
-        PrimaryDrawerItem studentList = new PrimaryDrawerItem().withName("Students");
-        PrimaryDrawerItem teacherList = new PrimaryDrawerItem().withName("Teachers");
-        PrimaryDrawerItem notificationList = new PrimaryDrawerItem().withName("Notifications");
-        PrimaryDrawerItem classList = new PrimaryDrawerItem().withName("Classes");
-        PrimaryDrawerItem feedback = new PrimaryDrawerItem().withName("Feedback");
         drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
@@ -217,26 +188,11 @@ public class MainActivity  extends AppCompatActivity  {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem == home) {
-                            Fragment homeFrag = new HomeFragment();
-                            loadFragment(homeFrag);
+                            loadFragment(new NotificationFragment());
                             getSupportActionBar().setTitle("Home");
                         }
                         if (drawerItem == logout) {
-                            CFAlertDialog.Builder builder = new CFAlertDialog.Builder(MainActivity.this)
-                                    .setDialogStyle(CFAlertDialog.CFAlertStyle.BOTTOM_SHEET)
-                                    .setTitle("Are you sure?")
-                                    .setMessage("Logout and clear your local information?")
-                                    .addButton("YES", -1, -1, CFAlertDialog.CFAlertActionStyle.NEGATIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                                        SharedPreferences settings = (SharedPreferences) getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                                        settings.edit().clear().commit();
-                                        dialog.dismiss();
-                                        finish();
-                                    })
-                                    .addButton("CANCEL", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
-
-                            builder.show();
+                            logoutAction();
                             return true;
                         }
                         if (drawerItem == studentList) {
@@ -247,7 +203,6 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Teacher List");
                             loadFragment(new TeacherFragment(searchView));
                         }
-
                         if (drawerItem == notificationList){
                             toolbar.setTitle("Notifications");
                             loadFragment(new NotificationFragment());
@@ -261,77 +216,6 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Feedback");
                             loadFragment(new FeedbackFragment());
                         }
-
-
-                        return false;
-                    }
-                })
-                .build();
-    }
-
-
-    public void parentAction(AccountHeader header) {
-        PrimaryDrawerItem home = new PrimaryDrawerItem().withName("Home");
-        PrimaryDrawerItem notificationList = new PrimaryDrawerItem().withName("Notifications");
-        PrimaryDrawerItem classList = new PrimaryDrawerItem().withName("Classes");
-        PrimaryDrawerItem feedback = new PrimaryDrawerItem().withName("Feedback");
-        drawer = new DrawerBuilder()
-                .withActivity(this)
-                .withToolbar(toolbar)
-                .withAccountHeader(header)
-                .addDrawerItems(
-                        home,
-                        new DividerDrawerItem(),
-                        notificationList,
-                        classList,
-                        new DividerDrawerItem(),
-                        feedback,
-                        new DividerDrawerItem(),
-                        logout
-                )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem == home) {
-                            Fragment homeFrag = new HomeFragment();
-                            loadFragment(homeFrag);
-                            getSupportActionBar().setTitle("Home");
-                        }
-                        if (drawerItem == logout) {
-                            CFAlertDialog.Builder builder = new CFAlertDialog.Builder(MainActivity.this)
-                                    .setDialogStyle(CFAlertDialog.CFAlertStyle.BOTTOM_SHEET)
-                                    .setTitle("Are you sure?")
-                                    .setMessage("Logout and clear your local information?")
-                                    .addButton("YES", -1, -1, CFAlertDialog.CFAlertActionStyle.NEGATIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                                        SharedPreferences settings = (SharedPreferences) getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                                        settings.edit().clear().commit();
-                                        dialog.dismiss();
-                                        finish();
-                                    })
-                                    .addButton("CANCEL", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
-
-                            builder.show();
-                            return true;
-                        }
-
-                        if (drawerItem == notificationList){
-                            toolbar.setTitle("Notifications");
-                            loadFragment(new NotificationFragment());
-                        }
-
-                        if (drawerItem == classList) {
-                            toolbar.setTitle("Class of Your children");
-                            loadFragment(new ClassFragment());
-                        }
-                        if(drawerItem == feedback){
-                            toolbar.setTitle("Your feedback");
-                            loadFragment(new FeedbackFragment());
-                        }
-
-
-
                         return false;
                     }
                 })
@@ -339,10 +223,6 @@ public class MainActivity  extends AppCompatActivity  {
     }
 
     public void teacherAction(AccountHeader header) {
-        PrimaryDrawerItem home = new PrimaryDrawerItem().withName("Home");
-        PrimaryDrawerItem notificationList = new PrimaryDrawerItem().withName("Notifications");
-        PrimaryDrawerItem classList = new PrimaryDrawerItem().withName("Classes");
-        PrimaryDrawerItem feedback = new PrimaryDrawerItem().withName("Feedback");
         drawer = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
@@ -361,26 +241,11 @@ public class MainActivity  extends AppCompatActivity  {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem == home) {
-                            Fragment homeFrag = new HomeFragment();
-                            loadFragment(homeFrag);
+                            loadFragment(new NotificationFragment());
                             getSupportActionBar().setTitle("Home");
                         }
                         if (drawerItem == logout) {
-                            CFAlertDialog.Builder builder = new CFAlertDialog.Builder(MainActivity.this)
-                                    .setDialogStyle(CFAlertDialog.CFAlertStyle.BOTTOM_SHEET)
-                                    .setTitle("Are you sure?")
-                                    .setMessage("Logout and clear your local information?")
-                                    .addButton("YES", -1, -1, CFAlertDialog.CFAlertActionStyle.NEGATIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                                        SharedPreferences settings = (SharedPreferences) getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                                        settings.edit().clear().commit();
-                                        dialog.dismiss();
-                                        finish();
-                                    })
-                                    .addButton("CANCEL", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
-
-                            builder.show();
+                            logoutAction();
                             return true;
                         }
 
@@ -396,12 +261,28 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Feedback");
                             loadFragment(new FeedbackFragment());
                         }
-
-
                         return false;
                     }
                 })
                 .build();
+    }
+
+    void logoutAction() {
+        CFAlertDialog.Builder builder = new CFAlertDialog.Builder(MainActivity.this)
+                .setDialogStyle(CFAlertDialog.CFAlertStyle.BOTTOM_SHEET)
+                .setTitle("Are you sure?")
+                .setMessage("Logout and clear your local data?")
+                .addButton("YES", -1, -1, CFAlertDialog.CFAlertActionStyle.NEGATIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                    SharedPreferences settings = (SharedPreferences) getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                    settings.edit().clear().commit();
+                    dialog.dismiss();
+                    finish();
+                })
+                .addButton("CANCEL", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                    dialog.dismiss();
+                });
+
+        builder.show();
     }
 
 }

@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,7 +37,7 @@ import java.util.Locale;
 public class StudentFragment extends Fragment {
 
     MaterialSearchView searchView;
-    CommonRecyclerAdapter adapter;
+    StudentRecyclerAdapter adapter;
     FirebaseManager firebaseManager = new FirebaseManager(getContext());
     public StudentFragment(MaterialSearchView searchView) {
         this.searchView = searchView;
@@ -50,12 +49,10 @@ public class StudentFragment extends Fragment {
         searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-
                 return false;
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                //Do some magic
                 adapter.filter(newText.trim());
                 return false;
             }
@@ -76,9 +73,6 @@ public class StudentFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // TODO: Use the ViewModel
-
-
         loadList();
         FloatingActionButton fab = getView().findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -143,8 +137,8 @@ public class StudentFragment extends Fragment {
         firebaseManager.getAllStudent(new FirebaseCallBack.AllStudentCallBack() {
             @Override
             public void onCallback(List<Student> students) {
-                adapter = new CommonRecyclerAdapter(getContext(), students);
-                adapter.setOnItemListenerListener(new CommonRecyclerAdapter.OnItemListener() {
+                adapter = new StudentRecyclerAdapter(getContext(), students);
+                adapter.setOnItemListenerListener(new StudentRecyclerAdapter.OnItemListener() {
                     @Override
                     public void OnItemClickListener(View view, int position) {
 
@@ -177,103 +171,6 @@ public class StudentFragment extends Fragment {
             }
         });
 
-
-    }
-
-    public static class CommonRecyclerAdapter extends RecyclerView.Adapter<CommonRecyclerAdapter.ViewHolder> {
-
-        private List<Student> mData;
-        private LayoutInflater mInflater;
-        private OnItemListener onItemListener;
-
-        // create arraylist
-        private ArrayList<Student> arraymData;
-
-        // data is passed into the constructor
-        public CommonRecyclerAdapter(Context context, List<Student> data) {
-            this.mInflater = LayoutInflater.from(context);
-            this.mData = data;
-
-            this.arraymData = new ArrayList<Student>();
-            this.arraymData.addAll(mData);
-        }
-
-        // class filter
-        public void filter(String charText) {
-            charText = charText.toLowerCase(Locale.getDefault());
-            mData.clear();
-            if (charText.length() == 0) {
-                mData.addAll(arraymData);
-            } else {
-                for (Student student : arraymData) {
-                    if (student.getName().toLowerCase(Locale.getDefault()).contains(charText)) {
-                        mData.add(student);
-                    }
-                }
-            }
-            notifyDataSetChanged();
-        }
-
-        // inflates the row layout from xml when needed
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.common_row, parent, false);
-            view.setOnClickListener(new RV_ItemListener());
-            view.setOnLongClickListener(new RV_ItemListener());
-            return new ViewHolder(view);
-        }
-
-        // binds the data to the TextView in each row
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            Common object = mData.get(position);
-            holder.myTextView.setText(object.getName());
-            holder.itemView.setId(position);
-        }
-
-        // total number of rows
-        @Override
-        public int getItemCount() {
-            return mData.size();
-        }
-
-
-        // stores and recycles views as they are scrolled off screen
-        public class ViewHolder extends RecyclerView.ViewHolder  {
-            TextView myTextView;
-
-            ViewHolder(View itemView) {
-                super(itemView);
-                myTextView = itemView.findViewById(R.id.title);
-            }
-
-        }
-
-        public  interface OnItemListener{
-            void OnItemClickListener(View view, int position);
-            void OnItemLongClickListener(View view, int position);
-        }
-
-        class RV_ItemListener implements View.OnClickListener, View.OnLongClickListener{
-
-            @Override
-            public void onClick(View view) {
-                if (onItemListener != null){
-                    onItemListener.OnItemClickListener(view, view.getId());
-                }
-            }
-            @Override
-            public boolean onLongClick(View view) {
-                if (onItemListener != null){
-                    onItemListener.OnItemLongClickListener(view,view.getId());
-                }
-                return true;
-            }
-        }
-
-        public void setOnItemListenerListener(OnItemListener listener){
-            this.onItemListener = listener;
-        }
 
     }
 }

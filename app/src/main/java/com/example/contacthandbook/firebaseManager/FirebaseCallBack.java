@@ -11,15 +11,22 @@ import com.example.contacthandbook.model.User;
 import java.util.List;
 
 public interface FirebaseCallBack {
+
+    //Common
+    interface SuccessCallBack {
+        void onCallback(boolean success);
+    }
+
+    //Users child
     interface UserCallBack {
         void onCallback(User user);
-
     }
 
     interface ValidateCallBack {
         void onCallBack(boolean isValidate, User user);
     }
 
+    //Student child
     interface AllStudentCallBack {
         void onCallback(List<Student> students);
     }
@@ -28,6 +35,7 @@ public interface FirebaseCallBack {
         void onCallback(boolean success);
     }
 
+    //Teacher child
     interface AllTeacherCallBack {
         void onCallback(List<Teacher> teachers);
     }
@@ -35,6 +43,12 @@ public interface FirebaseCallBack {
     interface AddTeacherCallBack {
         void onCallback(boolean success);
     }
+
+    interface SingleTeacher {
+        void onCallback(Teacher teacher);
+    }
+
+    //Notification child
     interface AddMessageCallBack {
         void onCallback(boolean success);
     }
@@ -42,45 +56,29 @@ public interface FirebaseCallBack {
     interface AllNotificationCallBack {
         void onCallback(List<Notification> notifications);
     }
+
+
+    //Feedback child
     interface AllFeedBackCallBack {
         void onCallback(List<Feedback> Feedback);
     }
+
+    //Classes child
     interface  AllClassName {
         void onCallback(List<Classes> classes);
-    }
-
-    interface  AllStudentName {
-        void onCallback(List<Student> students);
-    }
-
-    interface SingleTeacher {
-        void onCallback(Teacher teacher);
-    }
-    interface SingleUser {
-        void onCallback(User user);
     }
 
     interface SingleClass {
         void onCallback(String teacherId);
     }
 
-
-
-    interface ClassNameCallback {
-        void onCallback(String className);
-    }
-    interface FeedbackNameCallback {
-        void onCallback(String feedback);
-    }
-
-    interface SuccessCallBack {
-        void onCallback(boolean success);
-    }
-
     interface GetMarkCallback {
         void onCallback(Mark mark);
     }
 
+    interface ClassNameCallback {
+        void onCallback(String className);
+    }
 }
 
 

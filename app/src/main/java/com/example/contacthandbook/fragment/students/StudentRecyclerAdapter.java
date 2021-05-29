@@ -1,39 +1,59 @@
-package com.example.contacthandbook.fragment.feedback;
+package com.example.contacthandbook.fragment.students;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TextView;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.example.contacthandbook.R;
-import com.example.contacthandbook.firebaseManager.FirebaseCallBack;
-import com.example.contacthandbook.firebaseManager.FirebaseManager;
-import com.example.contacthandbook.model.Feedback;
-import com.example.contacthandbook.model.User;
+import com.example.contacthandbook.model.Common;
+import com.example.contacthandbook.model.Student;
 
-
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHolder>  {
+public class StudentRecyclerAdapter extends RecyclerView.Adapter<StudentRecyclerAdapter.ViewHolder> {
 
-    private List<Feedback> mData;
+    private List<Student> mData;
     private LayoutInflater mInflater;
     private OnItemListener onItemListener;
-    FirebaseManager firebaseManager ;
+
+    // create arraylist
+    private ArrayList<Student> arraymData;
+
     // data is passed into the constructor
-    public FeedbackAdapter(Context context, List<Feedback> data) {
+    public StudentRecyclerAdapter(Context context, List<Student> data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
-        firebaseManager = new FirebaseManager(context);
+
+        this.arraymData = new ArrayList<Student>();
+        this.arraymData.addAll(mData);
+    }
+
+    // class filter
+    public void filter(String charText) {
+        charText = charText.toLowerCase(Locale.getDefault());
+        mData.clear();
+        if (charText.length() == 0) {
+            mData.addAll(arraymData);
+        } else {
+            for (Student student : arraymData) {
+                if (student.getName().toLowerCase(Locale.getDefault()).contains(charText)) {
+                    mData.add(student);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 
     // inflates the row layout from xml when needed
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.feedback_row, parent, false);
+        View view = mInflater.inflate(R.layout.common_row, parent, false);
         view.setOnClickListener(new RV_ItemListener());
         view.setOnLongClickListener(new RV_ItemListener());
         return new ViewHolder(view);
@@ -42,24 +62,8 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Feedback feedback = mData.get(position);
-
-        holder.titleTextView.setText("Title: " + feedback.getTitle());
-        holder.messageTextView.setText(feedback.getContent());
-        holder.dateTextView.setText("Date: " + feedback.getDateStr());
-        firebaseManager.getUser(feedback.getSender(), new FirebaseCallBack.UserCallBack() {
-            @Override
-            public void onCallback(User user) {
-                holder.sender.setText("From: " + user.getName());
-            }
-        });
-        firebaseManager.getUser(feedback.getReciver(), new FirebaseCallBack.UserCallBack() {
-            @Override
-            public void onCallback(User user) {
-                holder.destinationTextView.setText("TO: " + user.getName());
-            }
-        });
-
+        Common object = mData.get(position);
+        holder.myTextView.setText(object.getName());
         holder.itemView.setId(position);
     }
 
@@ -70,21 +74,13 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
     }
 
 
-
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder  {
-        TextView destinationTextView;
-        TextView titleTextView;
-        TextView messageTextView;
-        TextView dateTextView;
-        TextView sender;
+        TextView myTextView;
+
         ViewHolder(View itemView) {
             super(itemView);
-            destinationTextView = itemView.findViewById(R.id.destination);
-            titleTextView = itemView.findViewById(R.id.title);
-            messageTextView = itemView.findViewById(R.id.message);
-            dateTextView = itemView.findViewById(R.id.date);
-            sender = itemView.findViewById(R.id.sender);
+            myTextView = itemView.findViewById(R.id.title);
         }
 
     }
@@ -116,4 +112,3 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
     }
 
 }
-

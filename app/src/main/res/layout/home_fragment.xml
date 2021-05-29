@@ -5,9 +5,10 @@
     android:layout_height="match_parent"
     tools:context=".fragment.home.HomeFragment">
 
-    <TextView
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="20dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="60dp"
-        android:text="Hello" />
+        android:layout_height="match_parent" />
 </FrameLayout>
