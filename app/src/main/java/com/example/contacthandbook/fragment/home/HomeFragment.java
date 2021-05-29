@@ -28,10 +28,6 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class HomeFragment extends Fragment {
 
-    private static final String PREFS_NAME = "USER_INFO";
-    FirebaseManager firebaseManager = new FirebaseManager(getContext());
-    HomeAdapter adapter;
-
     public static HomeFragment newInstance() {
         return new HomeFragment();
     }
@@ -45,67 +41,5 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.home_fragment, container, false);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // TODO: Use the ViewModel
-
-        loadList();
-    }
-
-    void loadList() {
-        NotifyDestination role = NotifyDestination.ALL;
-        User user = getSavedInfo();
-        if (user.getRole().equals("Admin")) {
-            role = NotifyDestination.ALL;
-        }
-        if (user.getRole().equals("Student")) {
-            return;
-        }
-        if (user.getRole().equals("Parent")) {
-            role=NotifyDestination.PARENT;
-        }
-        if (user.getRole().equals("Teacher")) {
-            role=NotifyDestination.TEACHER;
-        }
-        //show progressHUD
-        KProgressHUD hud = KProgressHUD.create(getContext())
-                .setDetailsLabel("Loading notification")
-                .setStyle(KProgressHUD.Style.SPIN_INDETERMINATE)
-                .setAnimationSpeed(2)
-                .setDimAmount(0.5f)
-                .show();
-
-        RecyclerView recyclerView = getView().findViewById(R.id.homeList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        firebaseManager.loadNotification(role, new FirebaseCallBack.AllNotificationCallBack() {
-            @Override
-            public void onCallback(List<Notification> notifications) {
-                adapter = new HomeAdapter(getContext(), notifications);
-                adapter.setOnItemListenerListener(new HomeAdapter.OnItemListener() {
-                    @Override
-                    public void OnItemClickListener(View view, int position) {
-
-                    }
-
-                    @Override
-                    public void OnItemLongClickListener(View view, int position) {
-
-                    }
-                });
-                recyclerView.setAdapter(adapter);
-                hud.dismiss();
-            }
-        });
-    }
-    public User getSavedInfo() {
-        User user = new User();
-        SharedPreferences sharedPref = getContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        user.setName(sharedPref.getString("name", "Contact Handbook"));
-        user.setRole(sharedPref.getString("role", "student"));
-        return  user;
     }
 }

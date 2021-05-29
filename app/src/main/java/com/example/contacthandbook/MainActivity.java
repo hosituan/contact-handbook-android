@@ -217,7 +217,7 @@ public class MainActivity  extends AppCompatActivity  {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem == home) {
-                            Fragment homeFrag = new HomeFragment();
+                            Fragment homeFrag = new NotificationFragment();
                             loadFragment(homeFrag);
                             getSupportActionBar().setTitle("Home");
                         }
@@ -361,7 +361,7 @@ public class MainActivity  extends AppCompatActivity  {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         if (drawerItem == home) {
-                            Fragment homeFrag = new HomeFragment();
+                            Fragment homeFrag = new NotificationFragment();
                             loadFragment(homeFrag);
                             getSupportActionBar().setTitle("Home");
                         }
