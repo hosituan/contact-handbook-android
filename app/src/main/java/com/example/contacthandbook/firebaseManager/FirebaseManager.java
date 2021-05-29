@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.example.contacthandbook.MainActivity;
 import com.example.contacthandbook.fragment.home.HomeFragment;
 import com.example.contacthandbook.model.Classes;
+import com.example.contacthandbook.model.Feedback;
 import com.example.contacthandbook.model.Mark;
 import com.example.contacthandbook.model.Notification;
 import com.example.contacthandbook.model.NotifyDestination;
@@ -382,7 +383,88 @@ public class FirebaseManager {
     }
 
 
+    public void addFeedBack( Feedback feedBack, FirebaseCallBack.AddMessageCallBack callBack ) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(FEEDBACK_CHILD).child(new Date().toString());
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                myRef.setValue(feedBack);
+                callBack.onCallback(true);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(false);
+            }
+        });
+    }
 
+
+
+    public void getClass(String className, FirebaseCallBack.SingleClass callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference getClassRef = database.getReference(CLASS_CHILD).child(className).child("Teacher");
+        getClassRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getValue() != null) {
+                    callBack.onCallback(snapshot.getValue().toString());
+                }
+                else {
+                    callBack.onCallback(null);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(null);
+            }
+        });
+    }
+
+
+
+
+
+
+
+    public void loadFeedbackAll(FirebaseCallBack.AllFeedBackCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Query teacherQuery = database.getReference(FEEDBACK_CHILD).limitToLast(1000);
+        teacherQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                List<Feedback> feedbacks = new ArrayList<>();
+                for (DataSnapshot feedbackSnapshot: snapshot.getChildren()) {
+                    Feedback feedback = feedbackSnapshot.getValue(Feedback.class);
+                    feedbacks.add(feedback);
+                }
+                callBack.onCallback(feedbacks);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+    }
+
+    public void getUserName(String id, FirebaseCallBack.SingleUser callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference getTeacherRef = database.getReference(USERS_CHILD).child(id);
+        getTeacherRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                callBack.onCallback(user);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onCallback(new User());
+            }
+        });
+    }
 }
 
 
