@@ -1,5 +1,6 @@
 package com.example.contacthandbook.fragment.classes;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -48,7 +50,6 @@ public class ClassDetailActivity extends AppCompatActivity {
     TextView textViewYear;
     RecyclerView recyclerViewList;
     FirebaseManager firebaseManager = new FirebaseManager(this);
-    Context context1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -92,10 +93,6 @@ public class ClassDetailActivity extends AppCompatActivity {
                 adapter.setOnItemListenerListener(new ClassDetailAdapter.OnItemListener() {
                     @Override
                     public void OnItemClickListener(View view, int position) {
-
-                    }
-                    @Override
-                    public void OnItemLongClickListener(View view, int position) {
                         Student student_ = arraymData.get(position);
                         User user = getSavedInfo();
                         if (user.getRole().equals("Teacher")) {
@@ -103,6 +100,9 @@ public class ClassDetailActivity extends AppCompatActivity {
                         } else {
                             showAddDialog(student_, false);
                         }
+                    }
+                    @Override
+                    public void OnItemLongClickListener(View view, int position) {
 
                     }
                 });
@@ -116,7 +116,8 @@ public class ClassDetailActivity extends AppCompatActivity {
     }
 
     void showAddDialog(Student student, boolean editable) {
-        View dialogLayout = LayoutInflater.from(ClassDetailActivity.this).inflate(R.layout.mark_dialog, null);
+        //Get child view
+        View dialogLayout = LayoutInflater.from(ClassDetailActivity.this).inflate(R.layout.mark_dialog, null, false);
         TextInputEditText math = dialogLayout.findViewById(R.id.math_editText);
         TextInputEditText physic = dialogLayout.findViewById(R.id.physic_editText);
         TextInputEditText chemistry = dialogLayout.findViewById(R.id.chemistry_editText);
@@ -126,15 +127,11 @@ public class ClassDetailActivity extends AppCompatActivity {
         TextView dateUpdated = dialogLayout.findViewById(R.id.date);
         Spinner spinnerYear = dialogLayout.findViewById(R.id.spinnerYear);
 
-
-        Date date = new Date();
-        int year = Calendar.getInstance().get(Calendar.YEAR);
-
-        String[] yearList = {String.valueOf(year), String.valueOf(year - 1), String.valueOf(year - 2)};
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR); //current Year
+        String[] yearList = {String.valueOf(currentYear), String.valueOf(currentYear - 1), String.valueOf(currentYear - 2)}; // 3 years
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>
                 (ClassDetailActivity.this, android.R.layout.simple_spinner_dropdown_item, yearList);
         spinnerYear.setAdapter(spinnerArrayAdapter);
-
         name.setText(student.getName());
         String okTitle = "Confirm";
         if (!editable) {
@@ -150,11 +147,93 @@ public class ClassDetailActivity extends AppCompatActivity {
             title.setText("View Mark");
         }
 
-        String finalOkTitle = okTitle;
-        firebaseManager.getMark(student, year, new FirebaseCallBack.GetMarkCallback() {
+        //load mark in current year
+        loadMark(student, currentYear, math, physic, chemistry, literature, dateUpdated);
+
+        //update mark when change year
+        spinnerYear.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                int selectedYear = Integer.parseInt(spinnerYear.getSelectedItem().toString());
+                if (selectedYear != currentYear) {
+                    loadMark(student, selectedYear, math, physic, chemistry, literature, dateUpdated);
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+
+            }
+        });
+
+        Mark mark = new Mark(); //init mark
+        Date date = new Date(); //current date
+        if (editable) {
+            math.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    math.setText("");
+                }
+            });
+            physic.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    physic.setText("");
+                }
+            });
+            chemistry.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    chemistry.setText("");
+                }
+            });
+            literature.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    literature.setText("");
+                }
+            });
+        }
+
+        CFAlertDialog.Builder builder = new CFAlertDialog.Builder(ClassDetailActivity.this);
+        builder
+                .setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT)
+                .setHeaderView(dialogLayout)
+                .addButton(okTitle, -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                    if (editable) {
+                        mark.setDate(date.toString());
+                        mark.setMath(getMark(math.getText().toString()));
+                        mark.setPhysic(getMark(physic.getText().toString()));
+                        mark.setChemistry(getMark(chemistry.getText().toString()));
+                        mark.setLiterature(getMark(literature.getText().toString()));
+                        mark.setStudentID(student.getId());
+                        mark.setYear(Integer.parseInt(spinnerYear.getSelectedItem().toString()));
+                        firebaseManager.addMark(student, mark, new FirebaseCallBack.SuccessCallBack() {
+                            @Override
+                            public void onCallback(boolean success) {
+                                dialog.dismiss();
+                                if (success) {
+                                    CommonFunction.showCommonAlert(ClassDetailActivity.this, "Updated mark for " + student.getName(), "OK");
+                                } else {
+                                    CommonFunction.showCommonAlert(ClassDetailActivity.this, "Something went wrong", "Let me check");
+                                }
+                            }
+                        });
+                    } else {
+                        dialog.dismiss();
+                    }
+                });
+        builder.show();
+
+    }
+
+
+    //load and update mark
+    void loadMark(Student student, int selectedYear, TextInputEditText math, TextInputEditText physic, TextInputEditText chemistry, TextInputEditText literature, TextView dateUpdated) {
+        firebaseManager.getMark(student, selectedYear, new FirebaseCallBack.GetMarkCallback() {
             @Override
             public void onCallback(Mark mark) {
-
+                Log.e("MARK", "");
+                dateUpdated.setText(mark.getDate());
                 if (mark.getMath() != -1.0) {
                     math.setText(mark.getMath().toString());
                 }
@@ -167,64 +246,12 @@ public class ClassDetailActivity extends AppCompatActivity {
                 if (mark.getLiterature() != -1.0) {
                     literature.setText(mark.getLiterature().toString());
                 }
-                math.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        math.setText("");
-                    }
-                });
-                physic.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        physic.setText("");
-                    }
-                });
-                chemistry.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        chemistry.setText("");
-                    }
-                });
-                literature.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        literature.setText("");
-                    }
-                });
-                dateUpdated.setText(mark.getDate());
-                CFAlertDialog.Builder builder = new CFAlertDialog.Builder(ClassDetailActivity.this)
-                        .setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT)
-                        .setHeaderView(dialogLayout)
-                        .addButton(finalOkTitle, -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                            if (editable) {
-                                mark.setDate(date.toString());
-                                mark.setMath(getMark(math.getText().toString()));
-                                mark.setPhysic(getMark(physic.getText().toString()));
-                                mark.setChemistry(getMark(chemistry.getText().toString()));
-                                mark.setLiterature(getMark(literature.getText().toString()));
-                                mark.setStudentID(student.getId());
-                                mark.setYear(Integer.parseInt(spinnerYear.getSelectedItem().toString()));
-                                firebaseManager.addMark(student, mark, new FirebaseCallBack.SuccessCallBack() {
-                                    @Override
-                                    public void onCallback(boolean success) {
-                                        dialog.dismiss();
-                                        if (success) {
-                                            CommonFunction.showCommonAlert(ClassDetailActivity.this, "Updated mark for " + student.getName(), "OK");
-                                        } else {
-                                            CommonFunction.showCommonAlert(ClassDetailActivity.this, "Something went wrong", "Let me check");
-                                        }
-                                    }
-                                });
-                            } else {
-                                dialog.dismiss();
-                            }
-                        });
-                builder.show();
             }
         });
-
     }
 
+
+    //get user information in shared pref
     public User getSavedInfo() {
         User user = new User();
         SharedPreferences sharedPref = this.getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -234,6 +261,7 @@ public class ClassDetailActivity extends AppCompatActivity {
         return  user;
     }
 
+    //parse String to double, return -1 when it give error
     Double getMark(String text) {
         try {
             return Double.parseDouble(text);
