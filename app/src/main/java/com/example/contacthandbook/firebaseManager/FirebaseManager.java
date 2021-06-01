@@ -47,6 +47,39 @@ public class FirebaseManager {
 
     //-- Users child
 
+
+    //Change password
+
+    public void changePassword(String username, String currentPassword, String newPassword, FirebaseCallBack.SuccessCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = database.getReference(USERS_CHILD).child(username).child("password");
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.getValue() != null) {
+                    String pwd = snapshot.getValue().toString();
+                    Log.e(pwd, currentPassword);
+                    if (pwd.equals(currentPassword)) {
+                        userRef.setValue(newPassword);
+                        callBack.onCallback(true);
+                    }
+                    else {
+
+                        callBack.onCallback(false);
+                    }
+                }
+                else {
+                    callBack.onCallback(false);
+                }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+    }
     // Get user from username/id
     public void getUser(String username, FirebaseCallBack.UserCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
