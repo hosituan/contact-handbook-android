@@ -103,7 +103,7 @@
         android:layout_height="350dp"
         android:dividerPadding="@dimen/activity_horizontal_margin"
         android:orientation="horizontal"
-        android:background="@drawable/my_custom_background"
+        android:background="@drawable/student_list_custom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.483"

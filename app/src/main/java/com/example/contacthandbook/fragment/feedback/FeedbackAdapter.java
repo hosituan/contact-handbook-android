@@ -56,7 +56,7 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.ViewHo
         firebaseManager.getUser(feedback.getReciver(), new FirebaseCallBack.UserCallBack() {
             @Override
             public void onCallback(User user) {
-                holder.destinationTextView.setText("TO: " + user.getName());
+                holder.destinationTextView.setText("To: " + user.getName());
             }
         });
 

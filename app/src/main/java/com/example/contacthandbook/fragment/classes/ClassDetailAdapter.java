@@ -65,7 +65,6 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     public void onBindViewHolder(ViewHolder holder, int position) {
         Common object = mData.get(position);
         holder.myTextView.setText(object.getName());
-        holder.grade.setText("Point");
         holder.itemView.setId(position);
     }
 
@@ -79,11 +78,11 @@ public class ClassDetailAdapter extends RecyclerView.Adapter<ClassDetailAdapter.
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder  {
         TextView myTextView;
-        TextView grade;
+
         ViewHolder(View itemView) {
             super(itemView);
             myTextView = itemView.findViewById(R.id.studentName);
-            grade = itemView.findViewById(R.id.TotalGrade);
+
         }
 
     }
