@@ -104,9 +104,17 @@ public class MainActivity  extends AppCompatActivity  {
     @Override
     public void onBackPressed()
     {
-        super.onBackPressed();  // optional
-        Fragment homeFrag = new HomeFragment();
-        loadFragment(homeFrag);
+        super.onBackPressed();
+//         // optional
+        User user = getSavedInfo();
+        if (user.getRole().equals("Student")) {
+            Fragment homeFrag = new HomeFragment();
+            loadFragment(homeFrag);
+        }
+        else {
+            Fragment notiFrag = new NotificationFragment();
+            loadFragment(notiFrag);
+        }
         getSupportActionBar().setTitle("Home");
     }
 
