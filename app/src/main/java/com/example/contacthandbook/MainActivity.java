@@ -2,11 +2,14 @@ package com.example.contacthandbook;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.crowdfire.cfalertdialog.CFAlertDialog;
+import com.example.contacthandbook.firebaseManager.FirebaseCallBack;
+import com.example.contacthandbook.firebaseManager.FirebaseManager;
 import com.example.contacthandbook.fragment.classes.ClassFragment;
 import com.example.contacthandbook.fragment.feedback.FeedbackFragment;
 import com.example.contacthandbook.fragment.home.HomeFragment;
@@ -14,6 +17,7 @@ import com.example.contacthandbook.fragment.notification.NotificationFragment;
 import com.example.contacthandbook.fragment.students.StudentFragment;
 import com.example.contacthandbook.fragment.teachers.TeacherFragment;
 import com.example.contacthandbook.model.User;
+import com.google.android.material.textfield.TextInputEditText;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -46,6 +50,7 @@ public class MainActivity  extends AppCompatActivity  {
     PrimaryDrawerItem notificationList = new PrimaryDrawerItem().withName("Notifications");
     PrimaryDrawerItem classList = new PrimaryDrawerItem().withName("Classes");
     PrimaryDrawerItem feedback = new PrimaryDrawerItem().withName("Feedback");
+    PrimaryDrawerItem changePassword = new PrimaryDrawerItem().withName("Change Password");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +113,7 @@ public class MainActivity  extends AppCompatActivity  {
     public User getSavedInfo() {
         User user = new User();
         SharedPreferences sharedPref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        user.setUsername(sharedPref.getString("username", "contact"));
         user.setName(sharedPref.getString("name", "Contact Handbook"));
         user.setRole(sharedPref.getString("role", "student"));
         return  user;
@@ -135,6 +141,7 @@ public class MainActivity  extends AppCompatActivity  {
                         new DividerDrawerItem(),
                         feedback,
                         new DividerDrawerItem(),
+                        changePassword,
                         logout
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -161,6 +168,9 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Your feedback");
                             loadFragment(new FeedbackFragment());
                         }
+                        if (drawerItem == changePassword) {
+                            changePassword();
+                        }
                         return false;
                     }
                 })
@@ -182,6 +192,7 @@ public class MainActivity  extends AppCompatActivity  {
                         new DividerDrawerItem(),
                         feedback,
                         new DividerDrawerItem(),
+                        changePassword,
                         logout
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -216,6 +227,9 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Feedback");
                             loadFragment(new FeedbackFragment());
                         }
+                        if (drawerItem == changePassword) {
+                            changePassword();
+                        }
                         return false;
                     }
                 })
@@ -235,6 +249,7 @@ public class MainActivity  extends AppCompatActivity  {
                         new DividerDrawerItem(),
                         feedback,
                         new DividerDrawerItem(),
+                        changePassword,
                         logout
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -261,12 +276,49 @@ public class MainActivity  extends AppCompatActivity  {
                             toolbar.setTitle("Feedback");
                             loadFragment(new FeedbackFragment());
                         }
+                        if (drawerItem == changePassword) {
+                            changePassword();
+                        }
                         return false;
                     }
                 })
                 .build();
     }
 
+
+    void changePassword() {
+        User user = getSavedInfo();
+        FirebaseManager firebaseManager = new FirebaseManager(MainActivity.this);
+        View dialogLayout = LayoutInflater.from(MainActivity.this).inflate(R.layout.password_dialog, null);
+        TextInputEditText currentPassword= dialogLayout.findViewById(R.id.currentPassword_text);
+        TextInputEditText newPassword = dialogLayout.findViewById(R.id.newPassword_text);
+        TextInputEditText rePassword = dialogLayout.findViewById(R.id.rePassword_text);
+        CFAlertDialog.Builder builder = new CFAlertDialog.Builder(MainActivity.this)
+                .setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT)
+                .setHeaderView(dialogLayout)
+                .addButton("Confirm", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                    if (!currentPassword.getText().toString().equals("") && !newPassword.getText().toString().equals("") && !rePassword.getText().toString().equals("") && newPassword.getText().toString().equals(rePassword.getText().toString())) {
+                        firebaseManager.changePassword(user.getUsername(), currentPassword.getText().toString(), newPassword.getText().toString(), new FirebaseCallBack.SuccessCallBack() {
+                            @Override
+                            public void onCallback(boolean success) {
+                                dialog.dismiss();
+                                if (success) {
+                                    CommonFunction.showCommonAlert(MainActivity.this, "Done", "Password changed");
+                                }
+                                else  {
+                                    CommonFunction.showCommonAlert(MainActivity.this, "Error", "Something went wrong");
+                                }
+                            }
+                        });
+                    }
+                    else {
+                        dialog.dismiss();
+                        CommonFunction.showCommonAlert(MainActivity.this, "Error", "Your data is missing");
+                    }
+
+                });
+        builder.show();
+    }
     void logoutAction() {
         CFAlertDialog.Builder builder = new CFAlertDialog.Builder(MainActivity.this)
                 .setDialogStyle(CFAlertDialog.CFAlertStyle.BOTTOM_SHEET)
