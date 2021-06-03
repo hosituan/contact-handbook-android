@@ -5,13 +5,14 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragment.students.StudentFragment">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/studentList"
-            android:scrollbars="vertical"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginTop="60dp"
-            android:layout_height="match_parent">
-        </androidx.recyclerview.widget.RecyclerView>
+            android:background="#FFFFFF"
+            android:scrollbars="vertical"></androidx.recyclerview.widget.RecyclerView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
@@ -20,4 +21,5 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             app:srcCompat="@android:drawable/ic_input_add" />
+
 </FrameLayout>
