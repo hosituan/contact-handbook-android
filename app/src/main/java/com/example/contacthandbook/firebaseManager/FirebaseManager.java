@@ -244,7 +244,7 @@ public class FirebaseManager {
             userQuery = database.getReference(TEACHER_CHILD).child(userId).child("className");
         }
         else if (role.equals("Parent")) {
-            callback.onCallback(null);
+            userQuery = database.getReference(STUDENT_CHILD).child(userId.substring(0, userId.length() - 7)).child("className");
         }
         userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
