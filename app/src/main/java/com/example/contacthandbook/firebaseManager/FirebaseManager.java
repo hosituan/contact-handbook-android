@@ -143,8 +143,10 @@ public class FirebaseManager {
 
     public void deleteStudent(Student student, FirebaseCallBack.SuccessCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference(TEACHER_CHILD).child(student.getId());
+        DatabaseReference myRef = database.getReference(STUDENT_CHILD).child(student.getId());
         myRef.removeValue();
+        DatabaseReference removeInfo = database.getReference(USERS_CHILD).child(student.getId());
+        removeInfo.removeValue();
     }
 
     // Add student to studentList, add student account, parents account
@@ -324,6 +326,8 @@ public class FirebaseManager {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference(TEACHER_CHILD).child(teacher.getId());
         myRef.removeValue();
+        DatabaseReference removeInfo = database.getReference(USERS_CHILD).child(teacher.getId());
+        removeInfo.removeValue();
     }
 
     //add teacher to teacher list, add teacher account, add teacher to class
