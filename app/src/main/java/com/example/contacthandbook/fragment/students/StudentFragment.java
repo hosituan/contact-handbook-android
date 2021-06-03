@@ -156,6 +156,17 @@ public class StudentFragment extends Fragment {
                                     showAddDialog(true, student_);
                                 })
                                 .addButton("Delete", -1, -1, CFAlertDialog.CFAlertActionStyle.NEGATIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                                    firebaseManager.deleteStudent(student_, new FirebaseCallBack.SuccessCallBack() {
+                                        @Override
+                                        public void onCallback(boolean success) {
+                                            if (success) {
+                                                CommonFunction.showCommonAlert(getContext(), "Done", "Deleted");
+                                            }
+                                            else {
+                                                CommonFunction.showCommonAlert(getContext(), "Error", "Something went wrong");
+                                            }
+                                        }
+                                    });
                                     dialog.dismiss();
                                     Toast.makeText(getContext(), "Deleted", Toast.LENGTH_LONG).show();
                                 })

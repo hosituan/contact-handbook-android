@@ -159,6 +159,12 @@ public class TeacherFragment extends Fragment {
                                 showAddDialog(true, teacher_);
                             })
                             .addButton("Delete", -1, -1, CFAlertDialog.CFAlertActionStyle.NEGATIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+                                firebaseManager.deleteTeacher(teacher_, new FirebaseCallBack.SuccessCallBack() {
+                                    @Override
+                                    public void onCallback(boolean success) {
+
+                                    }
+                                });
                                 dialog.dismiss();
                                 Toast.makeText(getContext(), "Deleted", Toast.LENGTH_LONG).show();
                             })
