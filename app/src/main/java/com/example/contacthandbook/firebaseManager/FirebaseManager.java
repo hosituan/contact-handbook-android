@@ -16,6 +16,7 @@ import com.example.contacthandbook.model.NotifyDestination;
 import com.example.contacthandbook.model.Student;
 import com.example.contacthandbook.model.Teacher;
 import com.example.contacthandbook.model.User;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -140,6 +141,12 @@ public class FirebaseManager {
         });
     }
 
+    public void deleteStudent(Student student, FirebaseCallBack.SuccessCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(TEACHER_CHILD).child(student.getId());
+        myRef.removeValue();
+    }
+
     // Add student to studentList, add student account, parents account
     public void addStudent(Student student, FirebaseCallBack.AddStudentCallBack callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -168,8 +175,8 @@ public class FirebaseManager {
         addStudentClass.setValue("student");
 
         //Add parent account
-        DatabaseReference addParentAccountRef = database.getReference(USERS_CHILD).child(student.getId());
-        User parents = new User(student.getId(), "1", student.getName(), "Parents");
+        DatabaseReference addParentAccountRef = database.getReference(USERS_CHILD).child(student.getId() + "parents");
+        User parents = new User(student.getId() + "parents", "1", student.getName(), "Parents");
         addParentAccountRef.setValue(parents);
     }
 
@@ -213,6 +220,12 @@ public class FirebaseManager {
         });
     }
 
+    public void deleteClass(String className, FirebaseCallBack.SuccessCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference classQuery = database.getReference(CLASS_CHILD).child(className);
+        classQuery.removeValue();
+    }
+
     public void getClass(String className, FirebaseCallBack.SingleClass callBack) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference getClassRef = database.getReference(CLASS_CHILD).child(className).child("Teacher");
@@ -243,9 +256,10 @@ public class FirebaseManager {
         else if (role.equals("Teacher")) {
             userQuery = database.getReference(TEACHER_CHILD).child(userId).child("className");
         }
-        else if (role.equals("Parent")) {
-
+        else if (role.equals("Parents")) {
+            userQuery = database.getReference(STUDENT_CHILD).child(userId.substring(0, userId.length() - 7)).child("className");
         }
+
         userQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -304,6 +318,12 @@ public class FirebaseManager {
                 callBack.onCallback(new Teacher());
             }
         });
+    }
+
+    public void deleteTeacher(Teacher teacher, FirebaseCallBack.SuccessCallBack callBack) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference(TEACHER_CHILD).child(teacher.getId());
+        myRef.removeValue();
     }
 
     //add teacher to teacher list, add teacher account, add teacher to class
