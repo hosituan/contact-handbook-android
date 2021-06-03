@@ -82,9 +82,13 @@ public class FeedbackFragment  extends Fragment {
         TextInputEditText FeedbackEditText = dialogLayout.findViewById(R.id.feedback_editText);
         User user = getSavedInfo();
 
+        String UserID =  user.getUsername() ;
+        if(UserID.contains("parents")){
+            UserID = UserID.replaceAll("parents","");
+        }
         Spinner spinnerDestination = dialogLayout.findViewById(R.id.spinner_student);
         ArrayList<String> arraymData = new ArrayList<String>();
-        firebaseManager.getClassName(user.getUsername(), user.getRole(), new FirebaseCallBack.ClassNameCallback() {
+        firebaseManager.getClassName(UserID, user.getRole(), new FirebaseCallBack.ClassNameCallback() {
             @Override
             public void onCallback(String className) {
                 firebaseManager.getAllStudent(new FirebaseCallBack.AllStudentCallBack() {
@@ -105,9 +109,9 @@ public class FeedbackFragment  extends Fragment {
         final String[] receiveID = new String[1];
         final String[] sendToStu = new String[1];
 
-        if(user.getRole().equals("Student")) {
+        if(user.getRole().equals("Student") || user.getRole().equals("Parents")) {
             spinnerDestination.setVisibility(View.GONE);
-            firebaseManager.getClassName(user.getUsername(), user.getRole(), new FirebaseCallBack.ClassNameCallback() {
+            firebaseManager.getClassName(UserID, user.getRole(), new FirebaseCallBack.ClassNameCallback() {
                 @Override
                 public void onCallback(String className) {
                     firebaseManager.getClass(className, new FirebaseCallBack.SingleClass() {
@@ -144,7 +148,7 @@ public class FeedbackFragment  extends Fragment {
                 .setHeaderView(dialogLayout)
                 .addButton("SEND", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
                     if (!titleFeedback.getText().toString().equals("") && !FeedbackEditText.getText().toString().equals("")) {
-                        if(user.getRole().equals("Student")) {
+                        if(user.getRole().equals("Student") || user.getRole().equals("Parents")) {
                             Feedback feedback = new Feedback(titleFeedback.getText().toString(), FeedbackEditText.getText().toString(), receiveID[0], user.getUsername());
                             firebaseManager.addFeedBack(feedback, new FirebaseCallBack.AddMessageCallBack() {
                                 @Override
