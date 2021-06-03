@@ -39,7 +39,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Notification notification = mData.get(position);
-        holder.destinationTextView.setText("TO: " + notification.getDesitnation().toString());
+        holder.destinationTextView.setText("To: " + notification.getDesitnation().toString());
         holder.titleTextView.setText("Title: " + notification.getTitle());
         holder.messageTextView.setText(notification.getContent());
         holder.dateTextView.setText("Date: " + notification.getDateStr());
